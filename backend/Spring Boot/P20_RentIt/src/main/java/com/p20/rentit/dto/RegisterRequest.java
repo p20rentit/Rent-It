@@ -1,0 +1,94 @@
+package com.p20.rentit.dto;
+
+public class RegisterRequest {
+	private int roleId;
+	private String fname;
+	private String mname;
+	private String lname;
+	private String email;
+	private String password;
+	private String adharNo;
+	private String panNo;
+	private int areaId;
+	private String drivingLicenceNo;
+
+	public String getMname() {
+		return mname;
+	}
+
+	public void setMname(String mname) {
+		this.mname = mname;
+	}
+
+	public String getAdharNo() {
+		return adharNo;
+	}
+
+	public void setAdharNo(String adharNo) {
+		this.adharNo = adharNo;
+	}
+
+	public String getPanNo() {
+		return panNo;
+	}
+
+	public void setPanNo(String panNo) {
+		this.panNo = panNo;
+	}
+
+	public int getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(int areaId) {
+		this.areaId = areaId;
+	}
+
+	public String getDrivingLicenceNo() {
+		return drivingLicenceNo;
+	}
+
+	public void setDrivingLicenceNo(String drivingLicenceNo) {
+		this.drivingLicenceNo = drivingLicenceNo;
+	}
+
+	public String getFname() {
+		return fname;
+	}
+
+	public void setFname(String fname) {
+		this.fname = fname;
+	}
+
+	public String getLname() {
+		return lname;
+	}
+
+	public void setLname(String lname) {
+		this.lname = lname;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
+}
