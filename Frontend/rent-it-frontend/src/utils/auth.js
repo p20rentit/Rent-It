@@ -3,7 +3,8 @@ export const getToken = () => {
 };
 
 export const getRole = () => {
-  return localStorage.getItem("role");
+  const role = localStorage.getItem("role");
+  return role?.replace("ROLE_", "").toUpperCase();
 };
 
 export const isLoggedIn = () => {

@@ -11,6 +11,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import OwnerDashboard from "../pages/OwnerDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
+import CostomerDashboard from "../pages/CustomerDashboard";
 
 function AppRoutes() {
   return (
@@ -19,16 +20,17 @@ function AppRoutes() {
 
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* CUSTOMER */}
         <Route
-          path="/"
+          path="/customer"
           element={
-            <ProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "OWNER"]}>
-              <Home />
+            <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+              <CostomerDashboard />
             </ProtectedRoute>
           }
         />

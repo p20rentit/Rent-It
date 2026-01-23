@@ -5,7 +5,10 @@ function Navbar() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role")
+  ?.replace("ROLE_", "")
+  .toUpperCase();
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -43,6 +46,14 @@ function Navbar() {
                 <Link className="nav-link" to="/admin">Admin</Link>
               </li>
             )}
+
+            {/* CUSTOMER */}
+            {token && role === "CUSTOMER" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/customer">Customer</Link>
+              </li>
+            )}
+
 
             {/* OWNER */}
             {token && role === "OWNER" && (

@@ -1,5 +1,5 @@
 export default function Home(){
     return(
-        <h1>Rohit Gunajl</h1>
+        <h1>This Home page</h1>
     )
 }

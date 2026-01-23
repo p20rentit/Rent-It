@@ -2,6 +2,8 @@ import { Navigate } from "react-router-dom";
 import { isLoggedIn, getRole } from "../utils/auth";
 
 function ProtectedRoute({ children, allowedRoles }) {
+  console.log("ROLE:", getRole());
+  console.log("ALLOWED:", allowedRoles);
 
   if (!isLoggedIn()) {
     return <Navigate to="/login" replace />;
