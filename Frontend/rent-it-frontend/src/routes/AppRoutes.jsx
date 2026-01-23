@@ -20,11 +20,7 @@ function AppRoutes() {
       <Navbar />
 
       <Routes>
-<<<<<<< HEAD
-        {/* Public Routes */}
-=======
         {/* PUBLIC */}
->>>>>>> Rohit
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -35,11 +31,7 @@ function AppRoutes() {
           path="/customer"
           element={
             <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-<<<<<<< HEAD
-              <CostomerDashboard />
-=======
               <CustomerDashboard />
->>>>>>> Rohit
             </ProtectedRoute>
           }
         />
