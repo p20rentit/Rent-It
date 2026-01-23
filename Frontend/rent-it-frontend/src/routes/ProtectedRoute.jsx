@@ -3,14 +3,20 @@ import { isLoggedIn, getRole } from "../utils/auth";
 
 function ProtectedRoute({ children, allowedRoles }) {
 
+  // ❌ Not logged in → login page
   if (!isLoggedIn()) {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(getRole())) {
+  // Get normalized role once
+  const userRole = getRole();
+
+  // ❌ Role not allowed → unauthorized page
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // ✅ Access granted
   return children;
 }
 

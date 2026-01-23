@@ -9,6 +9,7 @@ import Unauthorized from "../pages/Unauthorized";
 
 import AdminDashboard from "../pages/AdminDashboard";
 import OwnerDashboard from "../pages/OwnerDashboard";
+import CustomerDashboard from "../pages/CustomerDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -18,17 +19,18 @@ function AppRoutes() {
       <Navbar />
 
       <Routes>
-        {/* Public Routes */}
+        {/* PUBLIC */}
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* CUSTOMER */}
         <Route
-          path="/"
+          path="/customer"
           element={
-            <ProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "OWNER"]}>
-              <Home />
+            <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+              <CustomerDashboard />
             </ProtectedRoute>
           }
         />
