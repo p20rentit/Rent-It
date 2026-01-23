@@ -5,12 +5,30 @@ public class RegisterRequest {
 	private String fname;
 	private String mname;
 	private String lname;
+	private String phone;
 	private String email;
 	private String password;
 	private String adharNo;
 	private String panNo;
+	private String address;
 	private int areaId;
 	private String drivingLicenceNo;
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
 	public String getMname() {
 		return mname;
