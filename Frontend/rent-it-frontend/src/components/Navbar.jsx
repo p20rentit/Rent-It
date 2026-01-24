@@ -1,13 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import "./Navbar.css";
 
 function Navbar() {
+
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")
-    ?.replace("ROLE_", "")
-    .toUpperCase();
+  ?.replace("ROLE_", "")
+  .toUpperCase();
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -15,58 +16,80 @@ function Navbar() {
   };
 
   return (
-    <div className="sidebar">
-      <h4 className="sidebar-logo">Rent-It</h4>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div className="container">
+        <Link className="navbar-brand" to="/">Rent-It</Link>
 
-      <ul className="sidebar-menu">
-        {/* Home */}
-        <li>
-          <Link to="/">Home</Link>
-        </li>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        {/* ADMIN */}
-        {token && role === "ADMIN" && (
-          <li>
-            <Link to="/admin">Admin Dashboard</Link>
-          </li>
-        )}
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto">
 
-        {/* CUSTOMER */}
-        {token && role === "CUSTOMER" && (
-          <li>
-            <Link to="/customer">Customer Dashboard</Link>
-          </li>
-        )}
-
-        {/* OWNER */}
-        {token && role === "OWNER" && (
-          <li>
-            <Link to="/owner">Owner Dashboard</Link>
-          </li>
-        )}
-
-        {/* NOT LOGGED IN */}
-        {!token && (
-          <>
-            <li>
-              <Link to="/login">Login</Link>
+            {/* Home */}
+            <li className="nav-item">
+              <Link className="nav-link" to="/">Home</Link>
             </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-          </>
-        )}
 
-        {/* LOGGED IN */}
-        {token && (
-          <li>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
-          </li>
-        )}
-      </ul>
-    </div>
+            {/* ADMIN */}
+            {token && role === "ADMIN" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin">Admin</Link>
+              </li>
+            )}
+
+            {/* CUSTOMER */}
+            {token && role === "CUSTOMER" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/customer">Customer</Link>
+              </li>
+            )}
+
+
+            {/* OWNER */}
+            {token && role === "OWNER" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/owner">Owner</Link>
+              </li>
+            )}
+
+            {/* NOT LOGGED IN */}
+            {!token && (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">Login</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/register">Register</Link>
+                </li>
+              </>
+            )}
+
+            {/* LOGGED IN */}
+            {token && (
+              <li className="nav-item">
+                <button
+                  className="btn btn-outline-light ms-2"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </li>
+            )}
+
+          </ul>
+        </div>
+      </div>
+    </nav>
   );
 }
 

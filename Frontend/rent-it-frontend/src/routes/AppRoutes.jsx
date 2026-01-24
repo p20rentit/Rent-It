@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import MainLayout from "../components/MainLayout";
-import ProtectedRoute from "./ProtectedRoute";
-
+import Navbar from "../components/Navbar";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -13,23 +11,26 @@ import AdminDashboard from "../pages/AdminDashboard";
 import OwnerDashboard from "../pages/OwnerDashboard";
 import CustomerDashboard from "../pages/CustomerDashboard";
 
+import ProtectedRoute from "./ProtectedRoute";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
+      <Navbar />
 
+      <Routes>
         {/* PUBLIC */}
-        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-        <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
-        <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
-        <Route path="/unauthorized" element={<MainLayout><Unauthorized /></MainLayout>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* CUSTOMER */}
         <Route
           path="/customer"
           element={
             <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-              <MainLayout><CustomerDashboard /></MainLayout>
+              <CustomerDashboard />
             </ProtectedRoute>
           }
         />
@@ -39,7 +40,7 @@ function AppRoutes() {
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <MainLayout><AdminDashboard /></MainLayout>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
@@ -49,14 +50,13 @@ function AppRoutes() {
           path="/owner"
           element={
             <ProtectedRoute allowedRoles={["OWNER"]}>
-              <MainLayout><OwnerDashboard /></MainLayout>
+              <OwnerDashboard />
             </ProtectedRoute>
           }
         />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
-
       </Routes>
     </BrowserRouter>
   );
