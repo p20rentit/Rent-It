@@ -1,0 +1,13 @@
+.app-layout {
+  display: flex;
+}
+
+.main-content {
+  margin-left: 220px;   /* MUST match sidebar width */
+  padding: 20px;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+
+  box-sizing: border-box;
+}
