@@ -1,17 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+
+import { logout } from "../redux/authSlice";
 
 function Navbar() {
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role")
-  ?.replace("ROLE_", "")
-  .toUpperCase();
-
+  // ✅ Get auth state from Redux
+  const { isAuthenticated, role } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
-    localStorage.clear();
+    dispatch(logout());      // clears Redux + localStorage
     navigate("/login");
   };
 
@@ -41,29 +41,28 @@ function Navbar() {
             </li>
 
             {/* ADMIN */}
-            {token && role === "ADMIN" && (
+            {isAuthenticated && role === "ADMIN" && (
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin</Link>
               </li>
             )}
 
             {/* CUSTOMER */}
-            {token && role === "CUSTOMER" && (
+            {isAuthenticated && role === "CUSTOMER" && (
               <li className="nav-item">
                 <Link className="nav-link" to="/customer">Customer</Link>
               </li>
             )}
 
-
             {/* OWNER */}
-            {token && role === "OWNER" && (
+            {isAuthenticated && role === "OWNER" && (
               <li className="nav-item">
                 <Link className="nav-link" to="/owner">Owner</Link>
               </li>
             )}
 
             {/* NOT LOGGED IN */}
-            {!token && (
+            {!isAuthenticated && (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login">Login</Link>
@@ -75,7 +74,7 @@ function Navbar() {
             )}
 
             {/* LOGGED IN */}
-            {token && (
+            {isAuthenticated && (
               <li className="nav-item">
                 <button
                   className="btn btn-outline-light ms-2"
