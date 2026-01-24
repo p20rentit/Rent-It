@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
 import { loginUser } from "../services/authService";
+import { loginSuccess } from "../redux/authSlice";
 
 function Login() {
   // ---------- State ----------
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // show/hide password
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // ---------- Handle Login ----------
   const handleSubmit = async (e) => {
@@ -20,12 +24,21 @@ function Login() {
       // Call login API
       const response = await loginUser(email, password);
 
-      // Normalize role (handles ROLE_ADMIN, admin, etc.)
+      // Normalize role
       const role = response.data.role
         .replace("ROLE_", "")
         .toUpperCase();
 
-      // Save auth data
+      // ✅ Save to Redux
+      dispatch(
+        loginSuccess({
+          token: response.data.token,
+          role: role,
+          userId: response.data.userId,
+        })
+      );
+
+      // ✅ Persist to localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", role);
       localStorage.setItem("userId", response.data.userId);
@@ -44,9 +57,7 @@ function Login() {
         default:
           navigate("/unauthorized");
       }
-
     } catch (err) {
-      // Invalid credentials or server error
       setError("Invalid email or password");
     }
   };
@@ -57,7 +68,6 @@ function Login() {
       <div className="card p-4 shadow" style={{ width: "350px" }}>
         <h3 className="text-center mb-3">Login</h3>
 
-        {/* Error Message */}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -73,10 +83,9 @@ function Login() {
             />
           </div>
 
-          {/* Password with Show/Hide */}
+          {/* Password */}
           <div className="mb-3">
             <label className="form-label">Password</label>
-
             <div className="input-group">
               <input
                 type={showPassword ? "text" : "password"}
@@ -85,7 +94,6 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-
               <button
                 type="button"
                 className="btn btn-outline-secondary"

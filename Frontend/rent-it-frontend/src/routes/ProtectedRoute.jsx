@@ -1,20 +1,17 @@
 import { Navigate } from "react-router-dom";
-import { isLoggedIn, getRole } from "../utils/auth";
+import { useSelector } from "react-redux";
 
 function ProtectedRoute({ children, allowedRoles }) {
-  console.log("ROLE:", getRole());
-  console.log("ALLOWED:", allowedRoles);
+  // ✅ Get auth state from Redux
+  const { isAuthenticated, role } = useSelector((state) => state.auth);
 
   // ❌ Not logged in → login page
-  if (!isLoggedIn()) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Get normalized role once
-  const userRole = getRole();
-
   // ❌ Role not allowed → unauthorized page
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
