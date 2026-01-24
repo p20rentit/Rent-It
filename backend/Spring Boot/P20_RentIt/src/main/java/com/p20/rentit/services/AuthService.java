@@ -6,8 +6,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.p20.rentit.dto.RegisterRequest;
+import com.p20.rentit.entities.Area;
 import com.p20.rentit.entities.Role;
 import com.p20.rentit.entities.User;
+import com.p20.rentit.repositories.AreaRepository;
 import com.p20.rentit.repositories.RoleRepository;
 import com.p20.rentit.repositories.UserRepository;
 
@@ -20,6 +22,8 @@ public class AuthService {
     @Autowired
     private RoleRepository roleRepository;
     
+    @Autowired
+    private AreaRepository areaRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,28 +51,41 @@ public class AuthService {
     // ---------- REGISTER ----------
     public User register(RegisterRequest request) {
 
-        // 1️⃣ Check email already exists
+        //  Check email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
-
-        // 2️⃣ Create User object
+        
+        // Fetch role
+        Role role = roleRepository.findById(request.getRoleId())
+        		.orElseThrow(() -> new RuntimeException("Role Not Found"));
+        
+        Area area = areaRepository.findById(request.getAreaId())
+        		.orElseThrow(() -> new RuntimeException("Area Not Found"));
+        
+        
+        //  Create User object
         User user = new User();
         user.setFname(request.getFname());
+        user.setMname(request.getMname());
         user.setLname(request.getLname());
         user.setEmail(request.getEmail());
+        user.setRole(role);
         
-
-        // 3️⃣ Encode password ONCE
+        user.setPhone(request.getPhone());
+        user.setDrivingLicenceNo(request.getDrivingLicenceNo());
+        user.setAdharNo(request.getAdharNo());
+        user.setPanNo(request.getPanNo());
+        user.setAddress(request.getAddress());
+        user.setArea(area);
+        
+        
+        // Encode password ONCE
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // 4️⃣ Set role
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+       
 
-        user.setRole(role);
-
-        // 5️⃣ Save user
+        // Save user
         return userRepository.save(user);
     }
     
