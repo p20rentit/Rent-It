@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import com.p20.rentit.dto.RegisterRequest;
 import com.p20.rentit.entities.Area;
 import com.p20.rentit.entities.Role;
+import com.p20.rentit.entities.SecurityQuestion;
 import com.p20.rentit.entities.User;
 import com.p20.rentit.repositories.AreaRepository;
 import com.p20.rentit.repositories.RoleRepository;
+import com.p20.rentit.repositories.SecurityQuestionRepository;
 import com.p20.rentit.repositories.UserRepository;
 
 @Service
@@ -24,6 +26,9 @@ public class AuthService {
     
     @Autowired
     private AreaRepository areaRepository;
+    
+    @Autowired
+    private SecurityQuestionRepository securityQuestionRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -63,6 +68,8 @@ public class AuthService {
         Area area = areaRepository.findById(request.getAreaId())
         		.orElseThrow(() -> new RuntimeException("Area Not Found"));
         
+        SecurityQuestion securityQuestion = securityQuestionRepository.findById(request.getQuestionId())
+        		.orElseThrow(() -> new RuntimeException("Question Not Found"));
         
         //  Create User object
         User user = new User();
@@ -78,7 +85,13 @@ public class AuthService {
         user.setPanNo(request.getPanNo());
         user.setAddress(request.getAddress());
         user.setArea(area);
-        
+        user.setSecurityQuestion(securityQuestion);
+        user.setAnswer(
+        	    passwordEncoder.encode(
+        	        request.getAnswer().trim().toLowerCase()
+        	    )
+        	);
+
         
         // Encode password ONCE
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -89,15 +102,47 @@ public class AuthService {
         return userRepository.save(user);
     }
     
-    public User updatePassword(int userId, String newPassword) {
+    // forgot - passord
+    public SecurityQuestion getSecurityQuestion(String email) {
+    	User user = userRepository.findByEmail(email)
+    			.orElseThrow(() -> new RuntimeException("User Not Found"));
+    	
+    	SecurityQuestion question = user.getSecurityQuestion();
+    	
+    	return new SecurityQuestion(question.getQuestionId(),question.getQuestion());	
+    }
+    
+    // ---------- VERIFY SECURITY ANSWER ----------
+    public void verifySecurityAnswer(String email, Integer questionId, String answer) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+        Integer dbQuestionId = user.getSecurityQuestion().getQuestionId();
 
-        // Encode NEW password
+        if (!dbQuestionId.equals(questionId)) {
+            throw new RuntimeException("Invalid security question");
+        }
+
+
+        String inputAnswer = answer.trim().toLowerCase();
+
+        if (!passwordEncoder.matches(inputAnswer, user.getAnswer())) {
+        	System.out.println(passwordEncoder.encode(user.getAnswer()));
+        	System.out.println(passwordEncoder.encode(inputAnswer));
+        	
+            throw new RuntimeException("Incorrect answer");
+        }
+
+    }
+
+    // ---------- RESET PASSWORD ----------
+    public void resetPassword(String email, String newPassword) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
         user.setPassword(passwordEncoder.encode(newPassword));
-
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
 }

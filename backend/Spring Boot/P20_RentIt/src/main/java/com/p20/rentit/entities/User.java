@@ -72,6 +72,17 @@ public class User {
     @JsonIgnoreProperties("owner")
     @OneToMany(mappedBy = "owner")
     private Set<Vehicle> vehicles;
+    
+    
+    
+    // ---------- Question 
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    private SecurityQuestion securityQuestion;
+    
+    // answer
+    @Column
+    private String answer;
 
     // ---------- Constructors ----------
 
@@ -215,4 +226,22 @@ public class User {
         }
         this.vehicles = vehicles;
     }
+
+	public SecurityQuestion getSecurityQuestion() {
+		return securityQuestion;
+	}
+
+	public void setSecurityQuestion(SecurityQuestion securityQuestion) {
+		this.securityQuestion = securityQuestion;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+    
+    
 }

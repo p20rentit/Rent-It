@@ -13,6 +13,8 @@ public class RegisterRequest {
 	private String address;
 	private int areaId;
 	private String drivingLicenceNo;
+	private int questionId;
+	private String answer; 
 
 	public String getAddress() {
 		return address;
@@ -108,5 +110,21 @@ public class RegisterRequest {
 
 	public void setRoleId(int roleId) {
 		this.roleId = roleId;
+	}
+
+	public int getQuestionId() {
+		return questionId;
+	}
+
+	public void setQuestionId(int questionId) {
+		this.questionId = questionId;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
 	}
 }

@@ -5,6 +5,8 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "../services/authService";
 import { loginSuccess } from "../redux/authSlice";
 
+import { Link } from "react-router-dom";
+
 function Login() {
   // ---------- State ----------
   const [email, setEmail] = useState("");
@@ -104,6 +106,14 @@ function Login() {
             </div>
           </div>
 
+          <div className="mt-3 text-center">
+            <Link to="/forgot-password" className="text-primary">
+              Forgot Password?
+            </Link>
+          </div>
+          <div>
+            
+          </div>
           {/* Submit */}
           <button type="submit" className="btn btn-dark w-100">
             Login
