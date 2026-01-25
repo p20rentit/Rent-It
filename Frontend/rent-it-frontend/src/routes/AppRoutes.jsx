@@ -12,6 +12,7 @@ import OwnerDashboard from "../pages/OwnerDashboard";
 import CustomerDashboard from "../pages/CustomerDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
+import ForgotPassword from "../pages/ForgotPassword";
 
 function AppRoutes() {
   return (
@@ -24,6 +25,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* CUSTOMER */}
         <Route
