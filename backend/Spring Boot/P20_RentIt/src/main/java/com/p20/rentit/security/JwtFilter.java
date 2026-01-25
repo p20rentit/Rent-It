@@ -15,32 +15,47 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtFilter extends OncePerRequestFilter{
-	
-	private final String SECRET_KEY = "rentit_secret_key";
-	
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		
-		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-		
-		// If no token → allow only auth endpoints
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+public class JwtFilter extends OncePerRequestFilter {
+
+    private static final String SECRET_KEY = "rentit_secret_key";
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getServletPath();
+
+        // ✅ 1. PUBLIC APIs (NO JWT REQUIRED)
+        if (
+            path.startsWith("/auth/") ||
+            path.startsWith("/location/")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
-        
-        String token = authHeader.substring(7);
-        
-        try {
-        	Claims claims = Jwts.parserBuilder()
-        	        .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
-        	        .build()
-        	        .parseClaimsJws(token)
-        	        .getBody();
 
-            // Save user info for later use
+        // ✅ 2. PROTECTED APIs (JWT REQUIRED)
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Authorization token required");
+            return;
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // Attach user info
             request.setAttribute("userId", claims.get("userId"));
             request.setAttribute("role", claims.get("role"));
 
@@ -51,7 +66,5 @@ public class JwtFilter extends OncePerRequestFilter{
         }
 
         filterChain.doFilter(request, response);
-
-		
-	}
+    }
 }

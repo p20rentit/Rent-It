@@ -32,7 +32,7 @@ public class SecurityConfig {
 
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/register", "/location/**").permitAll()
+                .requestMatchers("/auth/**", "/location/**").permitAll()
                 .anyRequest().authenticated()
             )
 
