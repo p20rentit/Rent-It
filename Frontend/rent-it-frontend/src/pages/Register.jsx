@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { getCities, getAreasByCity } from "../services/LocationService";
+import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
+
 
 function Register() {
 
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
 
+  const [questions, setQuestions] = useState([]);
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const [errors, setErrors] = useState({}); // <-- Validation errors
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     roleId: "",
@@ -16,20 +25,30 @@ function Register() {
     phone: "",
     email: "",
     password: "",
-    repeatPassword: "",
+    confirmPassword: "",
     drivingLicenceNo: "",
     adharNo: "",
     panNo: "",
     address: "",
-    securityQuestion: "",
-    securityAnswer: "",
+    questionId: "",
+    answer: "",
     cityId: "",
     areaId: ""
   });
 
   useEffect(() => {
     getCities().then(setCities);
+
+    api.get("/auth/security-questions")
+    .then(res => {
+      setQuestions(res.data);
+    })
+    .catch(err => {
+      console.error("Error fetching security questions", err);
+    });
+
   }, []);
+
 
   const validateField = (name, value) => {
     let msg = "";
@@ -44,11 +63,11 @@ function Register() {
         break;
 
       case "mname":
-        if (value && !/^[A-Za-z]{2,50}$/.test(value)) msg = "Invalid middle name";
+        if (value && !/^^[A-Z][a-z]{2,50}$/.test(value)) msg = "Invalid middle name";
         break;
 
       case "lname":
-        if (!/^[A-Za-z]{2,50}$/.test(value)) msg = "Invalid last name";
+        if (!/^[A-Z][a-z]{2,50}$/.test(value)) msg = "Invalid last name";
         break;
 
       case "phone":
@@ -64,9 +83,11 @@ function Register() {
           msg = "Weak password (A-Z, a-z, 0-9, symbol, min 8)";
         break;
 
-      case "repeatPassword":
-        if (value !== formData.password) msg = "Passwords do not match";
+      case "confirmPassword":
+        if (formData.password && value !== formData.password)
+          msg = "Passwords do not match";
         break;
+
 
       case "adharNo":
         if (!/^\d{12}$/.test(value)) msg = "Aadhar must be 12 digits";
@@ -85,13 +106,15 @@ function Register() {
         if (!value || value.length < 5) msg = "Address must be at least 5 characters";
         break;
 
-      case "securityQuestion":
+      case "questionId":
         if (!value) msg = "Security question required";
         break;
 
-      case "securityAnswer":
+      case "answer":
         if (!value) msg = "Security answer required";
         break;
+
+
     }
 
     setErrors(prev => ({ ...prev, [name]: msg }));
@@ -114,44 +137,28 @@ function Register() {
     }
   };
 
-  // existing validate() unchanged
-  const validate = () => {
-    let temp = {};
-
-    if (!formData.roleId) temp.roleId = "Role is required";
-    if (!/^[A-Za-z]{2,50}$/.test(formData.fname)) temp.fname = "Invalid first name";
-    if (formData.mname && !/^[A-Za-z]{2,50}$/.test(formData.mname)) temp.mname = "Invalid middle name";
-    if (!/^[A-Za-z]{2,50}$/.test(formData.lname)) temp.lname = "Invalid last name";
-    if (!/^[7-9]\d{9}$/.test(formData.phone)) temp.phone = "Phone number must be 10 digits & start 6-9";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) temp.email = "Invalid email format";
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(formData.password)) temp.password = "Weak password";
-    if (formData.password !== formData.repeatPassword) temp.repeatPassword = "Passwords do not match";
-    if (formData.drivingLicenceNo && !/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(formData.drivingLicenceNo)) temp.drivingLicenceNo = "Invalid license format";
-    if (!/^\d{12}$/.test(formData.adharNo)) temp.adharNo = "Aadhar must be 12 digits";
-    if (formData.panNo && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNo)) temp.panNo = "Invalid PAN format";
-    if (!formData.cityId) temp.cityId = "City is required";
-    if (!formData.areaId) temp.areaId = "Area is required";
-    if (!formData.address || formData.address.length < 5) temp.address = "Address must be at least 5 characters";
-    if (!formData.securityQuestion) temp.securityQuestion = "Security question required";
-    if (!formData.securityAnswer) temp.securityAnswer = "Security answer required";
-
-    setErrors(temp);
-    return Object.keys(temp).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
 
-    const payload = { ...formData, areaId: formData.areaId };
-    const res = await fetch("http://localhost:8080/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    // 🔴 block submit if any validation error exists
+    const hasErrors = Object.values(errors).some(msg => msg);
+    if (hasErrors) return;
 
-    res.ok ? alert("Registration successful") : alert("Registration failed");
+    const { confirmPassword, ...rest } = formData;
+    const payload = {
+      ...rest,
+      questionId: Number(formData.questionId)
+    };
+
+    try {
+      await api.post("/auth/register", payload);
+      navigate("/login");
+    } catch (err) {
+      alert("Registration failed");
+      console.error(err);
+    }
   };
+
 
   return (
     <div className="container mt-5 mb-5">
@@ -167,7 +174,7 @@ function Register() {
               className="form-select"
               name="roleId"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
+              
             >
               <option value="">Select Role</option>
               <option value="2">Customer</option>
@@ -181,8 +188,8 @@ function Register() {
             <input
               className="form-control"
               name="fname"
+              placeholder="First name (Start with capital)"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.fname && <small className="text-danger">{errors.fname}</small>}
           </div>
@@ -192,8 +199,8 @@ function Register() {
             <input
               className="form-control"
               name="mname"
+              placeholder="Middle name (Start with capital)"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.mname && <small className="text-danger">{errors.mname}</small>}
           </div>
@@ -203,8 +210,8 @@ function Register() {
             <input
               className="form-control"
               name="lname"
+              placeholder="Last name (Start with capital)"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.lname && <small className="text-danger">{errors.lname}</small>}
           </div>
@@ -214,8 +221,8 @@ function Register() {
             <input
               className="form-control"
               name="phone"
+              placeholder="10-digit mobile number Ex:9784565236"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.phone && <small className="text-danger">{errors.phone}</small>}
           </div>
@@ -226,43 +233,71 @@ function Register() {
               className="form-control"
               type="email"
               name="email"
+              placeholder="example@email.com"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.email && <small className="text-danger">{errors.email}</small>}
           </div>
 
           <div className="mb-3">
             <label className="form-label">Password *</label>
-            <input
-              className="form-control"
-              type="password"
-              name="password"
-              onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
-            />
-            {errors.password && <small className="text-danger">{errors.password}</small>}
-          </div>
+
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Min 8 chars, A-Z, a-z, 0-9, symbol"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              {errors.password && <small className="text-danger">{errors.password}</small>}
+            </div>
+
+
 
           <div className="mb-3">
-            <label className="form-label">Repeat Password *</label>
-            <input
-              className="form-control"
-              type="password"
-              name="repeatPassword"
-              onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
-            />
-            {errors.repeatPassword && <small className="text-danger">{errors.repeatPassword}</small>}
+            <label className="form-label">Confirm Password *</label>
+
+            <div className="input-group">
+              <input
+                className="form-control"
+                type={showPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Re-enter password"
+                onChange={handleChange}
+              />
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+
+            {errors.confirmPassword && (
+              <small className="text-danger">{errors.confirmPassword}</small>
+            )}
           </div>
+
 
           <div className="mb-3">
             <label className="form-label">Driving Licence No *</label>
             <input
               className="form-control"
               name="drivingLicenceNo"
+              placeholder="DL Format: MH1220191234567"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.drivingLicenceNo && <small className="text-danger">{errors.drivingLicenceNo}</small>}
           </div>
@@ -272,8 +307,8 @@ function Register() {
             <input
               className="form-control"
               name="adharNo"
+              placeholder="12-digit Aadhaar number"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.adharNo && <small className="text-danger">{errors.adharNo}</small>}
           </div>
@@ -283,8 +318,8 @@ function Register() {
             <input
               className="form-control"
               name="panNo"
+              placeholder="PAN Format: ABCDE1234F"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
             {errors.panNo && <small className="text-danger">{errors.panNo}</small>}
           </div>
@@ -312,7 +347,6 @@ function Register() {
               value={formData.areaId}
               onChange={handleChange}
               disabled={!formData.cityId}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             >
               <option value="">Select Area</option>
               {areas.map(a => (
@@ -328,8 +362,8 @@ function Register() {
               className="form-control"
               rows="3"
               name="address"
+              placeholder="House no, Street, Landmark"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             ></textarea>
             {errors.address && <small className="text-danger">{errors.address}</small>}
           </div>
@@ -342,27 +376,32 @@ function Register() {
             <label className="form-label">Question *</label>
             <select
               className="form-select"
-              name="securityQuestion"
+              name="questionId"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             >
               <option value="">Select Question</option>
-              <option value="school">Your first school?</option>
-              <option value="pet">Your pet's name?</option>
-              <option value="birthplace">Your birthplace?</option>
+
+              {questions.map(q => (
+                <option key={q.questionId} value={q.questionId}>
+                  {q.question}
+                </option>
+              ))}
             </select>
-            {errors.securityQuestion && <small className="text-danger">{errors.securityQuestion}</small>}
+
+            {errors.questionId && <small className="text-danger">{errors.questionId}</small>}
           </div>
 
           <div className="mb-3">
             <label className="form-label">Answer *</label>
             <input
               className="form-control"
-              name="securityAnswer"
+              name="answer"
+              placeholder="Answer (Eg: Pune)"
               onChange={handleChange}
-              onBlur={(e)=>validateField(e.target.name,e.target.value)}
             />
-            {errors.securityAnswer && <small className="text-danger">{errors.securityAnswer}</small>}
+
+
+            {errors.answer && <small className="text-danger">{errors.answer}</small>}
           </div>
 
           <button className="btn btn-primary w-100">Register</button>
