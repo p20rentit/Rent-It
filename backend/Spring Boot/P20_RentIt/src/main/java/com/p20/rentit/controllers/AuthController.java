@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import com.p20.rentit.dto.SecurityQuestionResponse;
 import com.p20.rentit.dto.VerifyAnswerRequest;
 import com.p20.rentit.entities.SecurityQuestion;
 import com.p20.rentit.entities.User;
+import com.p20.rentit.repositories.SecurityQuestionRepository;
 import com.p20.rentit.security.JwtUtil;
 import com.p20.rentit.services.AuthService;
 
@@ -29,12 +31,19 @@ import com.p20.rentit.services.AuthService;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+	
+	@Autowired
+    private SecurityQuestionRepository securityQuestionRepository;
 
 	@Autowired
 	private AuthService authService;
 	
 	@Autowired
 	private JwtUtil jwtUtil;
+
+    AuthController(SecurityQuestionRepository securityQuestionRepository) {
+        this.securityQuestionRepository = securityQuestionRepository;
+    }
 	
 	// login they insert data 
 	@PostMapping("/login")
@@ -121,6 +130,11 @@ public class AuthController {
 
 	    return ResponseEntity.ok("PASSWORD_RESET_SUCCESS");
 	}
+	
+	 @GetMapping("/security-questions")
+	    public ResponseEntity<List<SecurityQuestion>> getAllQuestions() {
+	        return ResponseEntity.ok(securityQuestionRepository.findAll());
+	    }
 
 	
 }
