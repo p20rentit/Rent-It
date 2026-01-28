@@ -6,6 +6,9 @@ namespace RentIt_owner_services.Repositories.Interfaces
     {
         Task<List<Vehicle>> GetVehiclesByOwnerId(int ownerId);
 
+        // Get single vehicle by ID for update
+        Task<Vehicle?> GetVehicleById(int vehicleId);
+
         // add vehicle
         Task AddVehicle(Vehicle vehicle);
 

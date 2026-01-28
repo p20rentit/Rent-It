@@ -39,6 +39,25 @@ namespace RentIt_owner_services.Controllers
             });
         }
 
+        // PUT: api/owner/vehicles/{vehicleId}
+        // Update existing vehicle information
+        [HttpPut("{vehicleId}")]
+        public async Task<IActionResult> UpdateVehicle(
+            int vehicleId,
+            [FromBody] AddVehicleRequest request)
+        {
+            // Note: Reusing AddVehicleRequest DTO for update
+            // You can create a separate UpdateVehicleRequest if different fields needed
+            await _ownerVehicleService.UpdateVehicle(vehicleId, request);
+
+            return Ok(new
+            {
+                message = "Vehicle updated successfully"
+            });
+        }
+
+        // POST: api/owner/vehicles/upload-image
+        // Upload vehicle image (primary or additional)
         [HttpPost("upload-image")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadVehicleImage(

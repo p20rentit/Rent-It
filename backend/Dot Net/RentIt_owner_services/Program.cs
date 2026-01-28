@@ -16,6 +16,18 @@ namespace RentIt_owner_services
 
             // Add services to the container.
 
+            // CORS Configuration - Allow frontend to make requests
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173") // React frontend URL
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -32,9 +44,29 @@ namespace RentIt_owner_services
                 );
             });
 
-            // Repository + Service
+            // ======================================
+            // Repository + Service Registration
+            // ======================================
+            
+            // Owner Vehicle Service (existing)
             builder.Services.AddScoped<IOwnerVehicleRepository, OwnerVehicleRepository>();
             builder.Services.AddScoped<IOwnerVehicleService, OwnerVehicleService>();
+
+            // VehicleType Service - for vehicle type dropdown
+            builder.Services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
+            builder.Services.AddScoped<IVehicleTypeService, VehicleTypeService>();
+
+            // Brand Service - for brand dropdown
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+            builder.Services.AddScoped<IBrandService, BrandService>();
+
+            // Model Service - for model dependent dropdown
+            builder.Services.AddScoped<IModelRepository, ModelRepository>();
+            builder.Services.AddScoped<IModelService, ModelService>();
+
+            // FuelType Service - for fuel type dropdown
+            builder.Services.AddScoped<IFuelTypeRepository, FuelTypeRepository>();
+            builder.Services.AddScoped<IFuelTypeService, FuelTypeService>();
 
 
             var app = builder.Build();
@@ -46,7 +78,11 @@ namespace RentIt_owner_services
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // ❌ Commented out - Causes CORS issues with HTTP frontend (localhost:5173)
+            // app.UseHttpsRedirection();
+
+            // Enable CORS
+            app.UseCors("AllowFrontend");
 
             app.UseAuthorization();
 
