@@ -11,6 +11,12 @@ import AdminDashboard from "../pages/AdminDashboard";
 import OwnerDashboard from "../pages/OwnerDashboard";
 import CustomerDashboard from "../pages/CustomerDashboard";
 
+// Owner vehicle pages
+import VehicleList from "../pages/owner/VehicleList";
+import AddVehicle from "../pages/owner/AddVehicle";
+import EditVehicle from "../pages/owner/EditVehicle";
+import OwnerLayout from "../components/OwnerLayout";
+
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
 
@@ -47,15 +53,21 @@ function AppRoutes() {
           }
         />
 
-        {/* OWNER */}
+        {/* OWNER - All routes use OwnerLayout with sidebar */}
         <Route
           path="/owner"
           element={
             <ProtectedRoute allowedRoles={["OWNER"]}>
-              <OwnerDashboard />
+              <OwnerLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Nested routes - will render inside OwnerLayout's <Outlet /> */}
+          <Route index element={<OwnerDashboard />} />
+          <Route path="vehicles" element={<VehicleList />} />
+          <Route path="vehicles/add" element={<AddVehicle />} />
+          <Route path="vehicles/edit/:id" element={<EditVehicle />} />
+        </Route>
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

@@ -1,5 +1,71 @@
 [
   {
+    "ContainingType": "RentIt_owner_services.Controllers.BrandController",
+    "Method": "GetAll",
+    "RelativePath": "api/brands",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[RentIt_owner_services.DTOs.BrandDto, RentIt_owner_services, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.FuelTypeController",
+    "Method": "GetAll",
+    "RelativePath": "api/fueltypes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[RentIt_owner_services.DTOs.FuelTypeDto, RentIt_owner_services, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.ModelController",
+    "Method": "GetByBrand",
+    "RelativePath": "api/models/brand/{brandId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "brandId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[RentIt_owner_services.DTOs.ModelDto, RentIt_owner_services, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "FetchOwnerVehicles",
     "RelativePath": "api/owner/vehicles/{ownerId}",
@@ -38,6 +104,27 @@
   },
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "UpdateVehicle",
+    "RelativePath": "api/owner/vehicles/{vehicleId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "RentIt_owner_services.DTOs.AddVehicleRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UploadVehicleImage",
     "RelativePath": "api/owner/vehicles/upload-image",
     "HttpMethod": "POST",
@@ -61,6 +148,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.VehicleTypeController",
+    "Method": "GetAll",
+    "RelativePath": "api/vehicletypes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[RentIt_owner_services.DTOs.VehicleTypeDto, RentIt_owner_services, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "RentIt_owner_services.Controllers.WeatherForecastController",

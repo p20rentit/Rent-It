@@ -27,6 +27,13 @@ namespace RentIt_owner_services.Repositories
                 .ToListAsync();
         }
 
+        // Get single vehicle by ID for update operations
+        public async Task<Vehicle?> GetVehicleById(int vehicleId)
+        {
+            return await _context.Vehicles
+                .FirstOrDefaultAsync(v => v.VehicleId == vehicleId);
+        }
+
         // Add a new vehicle
         public async Task AddVehicle(Vehicle vehicle)
         {

@@ -62,6 +62,26 @@ namespace RentIt_owner_services.Services
             return vehicle.VehicleId;
         }
 
+        // Update existing vehicle information
+        public async Task UpdateVehicle(int vehicleId, AddVehicleRequest request)
+        {
+            var vehicle = await _repository.GetVehicleById(vehicleId);
+            
+            if (vehicle == null)
+                throw new Exception("Vehicle not found");
+
+            // Update vehicle properties
+            vehicle.VehicleTypeId = request.VehicleTypeId;
+            vehicle.ModelId = request.ModelId;
+            vehicle.FuelTypeId = request.FuelTypeId;
+            vehicle.VehicleNumber = request.VehicleNumber;
+            vehicle.VehicleRcNumber = request.VehicleRcNumber;
+            vehicle.Ac = request.Ac;
+            vehicle.Description = request.Description;
+
+            await _repository.SaveChanges();
+        }
+
         public async Task AddVehicleImage(AddVehicleImageRequest request)
         {
             // 🛡️ 1. Validate file existence

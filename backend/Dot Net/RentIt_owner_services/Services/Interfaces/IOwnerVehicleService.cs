@@ -11,6 +11,9 @@ namespace RentIt_owner_services.Services.Interfaces
 
         Task<int> AddVehicle(AddVehicleRequest request, int ownerId);
 
+        // Update existing vehicle
+        Task UpdateVehicle(int vehicleId, AddVehicleRequest request);
+
         Task AddVehicleImage(AddVehicleImageRequest request);
 
     }
