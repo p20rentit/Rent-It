@@ -1,5 +1,68 @@
 [
   {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "FetchOwnerVehicles",
+    "RelativePath": "api/owner/vehicles/{ownerId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ownerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "AddVehicle",
+    "RelativePath": "api/owner/vehicles/{ownerId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ownerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "RentIt_owner_services.DTOs.AddVehicleRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "UploadVehicleImage",
+    "RelativePath": "api/owner/vehicles/upload-image",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "VehicleId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsPrimary",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "RentIt_owner_services.Controllers.WeatherForecastController",
     "Method": "Get",
     "RelativePath": "WeatherForecast",

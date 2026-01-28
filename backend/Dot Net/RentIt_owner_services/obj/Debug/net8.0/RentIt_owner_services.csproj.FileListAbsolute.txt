@@ -111,3 +111,4 @@ C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\Dot Net\Re
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\Dot Net\RentIt_owner_services\obj\Debug\net8.0\RentIt_owner_services.pdb
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\Dot Net\RentIt_owner_services\obj\Debug\net8.0\RentIt_owner_services.genruntimeconfig.cache
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\Dot Net\RentIt_owner_services\obj\Debug\net8.0\ref\RentIt_owner_services.dll
+C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\Dot Net\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

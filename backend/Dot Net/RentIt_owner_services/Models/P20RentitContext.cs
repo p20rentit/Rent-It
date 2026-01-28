@@ -93,7 +93,7 @@ public partial class P20RentitContext : DbContext
                 .HasColumnName("booking_date");
             entity.Property(e => e.BookingStatus)
                 .HasDefaultValueSql("'PENDING'")
-                .HasColumnType("enum('PENDING','CONFIRMED','CANCELLED','COMPLETED')")
+                .HasColumnType("enum('PENDING','SUCCESS','FAILED','REFUNDED')")
                 .HasColumnName("booking_status");
             entity.Property(e => e.EndDate).HasColumnName("end_date");
             entity.Property(e => e.PaidAmount)
@@ -275,6 +275,8 @@ public partial class P20RentitContext : DbContext
 
             entity.ToTable("user");
 
+            entity.HasIndex(e => e.Email, "UKob8kqyqqgmefl0aco34akdtpe").IsUnique();
+
             entity.HasIndex(e => e.AreaId, "area_id_fk_idx");
 
             entity.HasIndex(e => e.DrivingLicenceNo, "driving_licence_no_UNIQUE").IsUnique();
@@ -300,14 +302,12 @@ public partial class P20RentitContext : DbContext
                 .HasColumnName("approval_status");
             entity.Property(e => e.AreaId).HasColumnName("area_id");
             entity.Property(e => e.DrivingLicenceNo).HasColumnName("driving_licence_no");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
+            entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.Fname)
                 .HasMaxLength(255)
                 .HasColumnName("fname");
             entity.Property(e => e.IsActive)
-                .HasDefaultValueSql("'0'")
+                .HasColumnType("bit(1)")
                 .HasColumnName("is_active");
             entity.Property(e => e.Lname)
                 .HasMaxLength(255)
@@ -407,9 +407,9 @@ public partial class P20RentitContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
-            entity.Property(e => e.ImageUrl)
-                .HasMaxLength(45)
-                .HasColumnName("image_url");
+            entity.Property(e => e.Image)
+                .HasColumnType("blob")
+                .HasColumnName("image");
             entity.Property(e => e.IsPrimary).HasColumnName("is_primary");
             entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
 

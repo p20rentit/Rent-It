@@ -35,7 +35,7 @@ public partial class User
 
     public string? Answer { get; set; }
 
-    public sbyte? IsActive { get; set; }
+    public ulong? IsActive { get; set; }
 
     public string? ApprovalStatus { get; set; }
 
