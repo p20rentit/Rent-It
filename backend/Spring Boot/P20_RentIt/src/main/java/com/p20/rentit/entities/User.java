@@ -1,23 +1,20 @@
 package com.p20.rentit.entities;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(
+    name = "user",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "driving_licence_no"),
+        @UniqueConstraint(columnNames = "pan_no")
+    }
+)
 public class User {
 
+    // ---------- PRIMARY KEY ----------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -26,7 +23,7 @@ public class User {
     // ---------- ROLE ----------
     @JsonIgnoreProperties("users")
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
     // ---------- BASIC DETAILS ----------
@@ -65,53 +62,30 @@ public class User {
 
     @JsonIgnoreProperties("users")
     @ManyToOne
-    @JoinColumn(name = "area_id")
+    @JoinColumn(name = "area_id", nullable = false)
     private Area area;
 
-    // ---------- OWNER → VEHICLES ----------
-    @JsonIgnoreProperties("owner")
-    @OneToMany(mappedBy = "owner")
-    private Set<Vehicle> vehicles;
-    
-    
-    
-    // ---------- Question 
+    // ---------- SECURITY QUESTION ----------
     @ManyToOne
     @JoinColumn(name = "question_id")
     private SecurityQuestion securityQuestion;
-    
-    // answer
-    @Column
+
+    @Column(name = "answer")
     private String answer;
 
-    // ---------- Constructors ----------
+    // ---------- STATUS ----------
+    @Column(name = "is_active")
+    private boolean isActive;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status")
+    private ApprovalStatus approvalStatus;
+
+    // ---------- CONSTRUCTORS ----------
     public User() {
-        super();
     }
 
-    public User(int userId, Role role, String fname, String mname, String lname,
-                String phone, String email, String drivingLicenceNo,
-                String adharNo, String panNo, String password,
-                String address, Area area) {
-        super();
-        this.userId = userId;
-        this.role = role;
-        this.fname = fname;
-        this.mname = mname;
-        this.lname = lname;
-        this.phone = phone;
-        this.email = email;
-        this.drivingLicenceNo = drivingLicenceNo;
-        this.adharNo = adharNo;
-        this.panNo = panNo;
-        this.password = password;
-        this.address = address;
-        this.area = area;
-    }
-
-    // ---------- Getters & Setters ----------
-
+    // ---------- GETTERS & SETTERS ----------
     public int getUserId() {
         return userId;
     }
@@ -216,32 +190,35 @@ public class User {
         this.area = area;
     }
 
-    public Set<Vehicle> getVehicles() {
-        return vehicles;
+    public SecurityQuestion getSecurityQuestion() {
+        return securityQuestion;
     }
 
-    public void setVehicles(Set<Vehicle> vehicles) {
-        for (Vehicle v : vehicles) {
-            v.setOwner(this);
-        }
-        this.vehicles = vehicles;
+    public void setSecurityQuestion(SecurityQuestion securityQuestion) {
+        this.securityQuestion = securityQuestion;
     }
 
-	public SecurityQuestion getSecurityQuestion() {
-		return securityQuestion;
-	}
+    public String getAnswer() {
+        return answer;
+    }
 
-	public void setSecurityQuestion(SecurityQuestion securityQuestion) {
-		this.securityQuestion = securityQuestion;
-	}
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
 
-	public String getAnswer() {
-		return answer;
-	}
+    public boolean isActive() {
+        return isActive;
+    }
 
-	public void setAnswer(String answer) {
-		this.answer = answer;
-	}
-    
-    
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public ApprovalStatus getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(ApprovalStatus approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
 }

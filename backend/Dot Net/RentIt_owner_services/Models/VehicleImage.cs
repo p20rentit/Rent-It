@@ -9,7 +9,7 @@ public partial class VehicleImage
 
     public int VehicleId { get; set; }
 
-    public string? ImageUrl { get; set; }
+    public byte[]? Image { get; set; }
 
     public sbyte? IsPrimary { get; set; }
 
