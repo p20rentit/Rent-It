@@ -17,6 +17,12 @@ import AddVehicle from "../pages/owner/AddVehicle";
 import EditVehicle from "../pages/owner/EditVehicle";
 import OwnerLayout from "../components/OwnerLayout";
 
+// Admin pages
+import CustomersList from "../pages/admin/CustomersList";
+import OwnersList from "../pages/admin/OwnersList";
+import AllVehicles from "../pages/admin/AllVehicles";
+import AdminLayout from "../components/AdminLayout";
+
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
 
@@ -43,15 +49,21 @@ function AppRoutes() {
           }
         />
 
-        {/* ADMIN */}
+        {/* ADMIN - All routes use AdminLayout with sidebar */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <AdminDashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Nested routes - will render inside AdminLayout's <Outlet /> */}
+          <Route index element={<AdminDashboard />} />
+          <Route path="users/customers" element={<CustomersList />} />
+          <Route path="users/owners" element={<OwnersList />} />
+          <Route path="vehicles" element={<AllVehicles />} />
+        </Route>
 
         {/* OWNER - All routes use OwnerLayout with sidebar */}
         <Route
