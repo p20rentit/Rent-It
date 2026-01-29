@@ -1,15 +1,9 @@
 package com.rentit.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "fuel_type")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class FuelType {
 
     @Id
@@ -19,4 +13,36 @@ public class FuelType {
 
     @Column(name = "fuel_type")
     private String fuelType;
+
+    public FuelType() {
+    }
+
+    public FuelType(Integer fuelId, String fuelType) {
+        this.fuelId = fuelId;
+        this.fuelType = fuelType;
+    }
+
+    public Integer getFuelId() {
+        return fuelId;
+    }
+
+    public void setFuelId(Integer fuelId) {
+        this.fuelId = fuelId;
+    }
+
+    public String getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
+    }
+
+    @Override
+    public String toString() {
+        return "FuelType{" +
+                "fuelId=" + fuelId +
+                ", fuelType='" + fuelType + '\'' +
+                '}';
+    }
 }

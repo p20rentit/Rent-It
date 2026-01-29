@@ -2,17 +2,8 @@ package com.rentit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
-@Entity
-@Table(name = "vehicle")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Vehicle {
 
     @Id
@@ -55,4 +46,128 @@ public class Vehicle {
 
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
     private List<VehicleImage> vehicleImages;
+
+    public Vehicle() {
+    }
+
+    public Vehicle(Integer vehicleId, Integer ownerId, VehicleType vehicleType, FuelType fuelType, Integer ac,
+            String status, String vehicleNumber, String vehicleRcNumber, String description, Model model,
+            List<VehicleImage> vehicleImages) {
+        this.vehicleId = vehicleId;
+        this.ownerId = ownerId;
+        this.vehicleType = vehicleType;
+        this.fuelType = fuelType;
+        this.ac = ac;
+        this.status = status;
+        this.vehicleNumber = vehicleNumber;
+        this.vehicleRcNumber = vehicleRcNumber;
+        this.description = description;
+        this.model = model;
+        this.vehicleImages = vehicleImages;
+    }
+
+    public Integer getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(Integer vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public Integer getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Integer ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public FuelType getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(FuelType fuelType) {
+        this.fuelType = fuelType;
+    }
+
+    public Integer getAc() {
+        return ac;
+    }
+
+    public void setAc(Integer ac) {
+        this.ac = ac;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getVehicleRcNumber() {
+        return vehicleRcNumber;
+    }
+
+    public void setVehicleRcNumber(String vehicleRcNumber) {
+        this.vehicleRcNumber = vehicleRcNumber;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
+    public List<VehicleImage> getVehicleImages() {
+        return vehicleImages;
+    }
+
+    public void setVehicleImages(List<VehicleImage> vehicleImages) {
+        this.vehicleImages = vehicleImages;
+    }
+
+    @Override
+    public String toString() {
+        return "Vehicle{" +
+                "vehicleId=" + vehicleId +
+                ", ownerId=" + ownerId +
+                ", vehicleType=" + vehicleType +
+                ", fuelType=" + fuelType +
+                ", ac=" + ac +
+                ", status='" + status + '\'' +
+                ", vehicleNumber='" + vehicleNumber + '\'' +
+                ", vehicleRcNumber='" + vehicleRcNumber + '\'' +
+                ", description='" + description + '\'' +
+                ", model=" + model +
+                ", vehicleImages=" + vehicleImages +
+                '}';
+    }
 }
