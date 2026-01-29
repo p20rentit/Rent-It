@@ -55,7 +55,36 @@ ownerApi.interceptors.request.use(
 );
 
 // ========================================
+// Admin Services API Instance
+// ========================================
+// Used for: Admin User Management, Vehicle Management (view/block/unblock)
+// Base URL: http://localhost:6001 (Admin microservice - .NET backend)
+const adminApi = axios.create({
+  baseURL: "http://localhost:6001/api",
+});
+
+// Request interceptor to add token to headers for admin API
+adminApi.interceptors.request.use(
+  (config) => {
+    console.log(`🚀 ADMIN API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("🔑 Token added to request");
+    } else {
+      console.log("⚠️ No token found in localStorage");
+    }
+    return config;
+  },
+  (error) => {
+    console.error("❌ ADMIN API Request Error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// ========================================
 // Exports
 // ========================================
 export default api;        // For auth, registration, location services
 export { ownerApi };       // For owner vehicle services
+export { adminApi };       // For admin management services
