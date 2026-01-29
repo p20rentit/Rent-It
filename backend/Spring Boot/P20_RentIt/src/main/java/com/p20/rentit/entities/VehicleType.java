@@ -1,13 +1,16 @@
-package com.rentit.entities;
+package com.p20.rentit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "vehicle_type", uniqueConstraints = {
+@Table(
+    name = "vehicle_type",
+    uniqueConstraints = {
         @UniqueConstraint(columnNames = "vehicle_type_name")
-})
+    }
+)
 public class VehicleType {
 
     // ---------- PRIMARY KEY ----------

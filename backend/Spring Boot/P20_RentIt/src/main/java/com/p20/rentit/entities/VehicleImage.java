@@ -1,4 +1,4 @@
-package com.rentit.entities;
+package com.p20.rentit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

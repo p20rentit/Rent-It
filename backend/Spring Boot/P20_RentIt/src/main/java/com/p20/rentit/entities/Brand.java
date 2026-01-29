@@ -1,4 +1,4 @@
-package com.rentit.entities;
+package com.p20.rentit.entities;
 
 import jakarta.persistence.*;
 
@@ -14,8 +14,7 @@ public class Brand {
     @Column(name = "brand")
     private String brand;
 
-    public Brand() {
-    }
+    public Brand() {}
 
     public int getBrandId() {
         return brandId;

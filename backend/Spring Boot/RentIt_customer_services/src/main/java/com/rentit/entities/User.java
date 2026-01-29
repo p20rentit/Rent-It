@@ -1,18 +1,15 @@
-package com.p20.rentit.entities;
+package com.rentit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
-@Table(
-    name = "user",
-    uniqueConstraints = {
+@Table(name = "user", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
         @UniqueConstraint(columnNames = "phone"),
         @UniqueConstraint(columnNames = "driving_licence_no"),
         @UniqueConstraint(columnNames = "pan_no")
-    }
-)
+})
 public class User {
 
     // ---------- PRIMARY KEY ----------

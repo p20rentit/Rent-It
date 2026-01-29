@@ -1,0 +1,57 @@
+package com.rentit.controllers;
+
+import com.rentit.dto.VehicleDTO;
+import com.rentit.services.CustomerVehicleService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/customer")
+public class CustomerVehicleController {
+
+    private final CustomerVehicleService customerVehicleService;
+
+    // Constructor-based dependency injection
+    public CustomerVehicleController(CustomerVehicleService customerVehicleService) {
+        this.customerVehicleService = customerVehicleService;
+    }
+
+    /**
+     * Browse all active vehicles
+     * GET /api/customer/vehicles
+     * 
+     * @return List of all ACTIVE vehicles with owner and address details
+     */
+    @GetMapping("/vehicles")
+    public ResponseEntity<List<VehicleDTO>> getAllActiveVehicles() {
+        try {
+            List<VehicleDTO> vehicles = customerVehicleService.getAllActiveVehicles();
+            return ResponseEntity.ok(vehicles);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * View single active vehicle by ID
+     * GET /api/customer/vehicles/{vehicleId}
+     * 
+     * @param vehicleId Vehicle ID
+     * @return Single ACTIVE vehicle details or 404 if not found/not active
+     */
+    @GetMapping("/vehicles/{vehicleId}")
+    public ResponseEntity<VehicleDTO> getActiveVehicleById(@PathVariable int vehicleId) {
+        try {
+            VehicleDTO vehicle = customerVehicleService.getActiveVehicleById(vehicleId);
+            return ResponseEntity.ok(vehicle);
+        } catch (RuntimeException e) {
+            // Vehicle not found or not active
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+}

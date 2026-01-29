@@ -1,4 +1,4 @@
-package com.rentit.entities;
+package com.p20.rentit.entities;
 
 import jakarta.persistence.*;
 
@@ -18,8 +18,7 @@ public class Model {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    public Model() {
-    }
+    public Model() {}
 
     public int getModelId() {
         return modelId;
