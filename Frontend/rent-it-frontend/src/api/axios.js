@@ -83,8 +83,38 @@ adminApi.interceptors.request.use(
 );
 
 // ========================================
+// Customer Services API Instance
+// ========================================
+// Used for: Customer Vehicle Browsing (view all vehicles, view single vehicle)
+// Base URL: http://localhost:7001/api (Customer microservice - Spring Boot backend)
+const customerApi = axios.create({
+  baseURL: "http://localhost:7001/api",
+});
+
+// Request interceptor to add token to headers for customer API
+customerApi.interceptors.request.use(
+  (config) => {
+    console.log(`🚀 CUSTOMER API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("🔑 Token added to request");
+    } else {
+      console.log("⚠️ No token found in localStorage");
+    }
+    return config;
+  },
+  (error) => {
+    console.error("❌ CUSTOMER API Request Error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// ========================================
 // Exports
 // ========================================
 export default api;        // For auth, registration, location services
 export { ownerApi };       // For owner vehicle services
 export { adminApi };       // For admin management services
+export { customerApi };    // For customer vehicle browsing services
+
