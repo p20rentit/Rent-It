@@ -47,21 +47,19 @@
               "RelativeToolTip": "RentIt_admin_services\\Models\\P20RentitContext.cs",
               "ViewState": "AgIAACgAAAAAAAAAAAA8wDEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-29T07:57:24.49Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-29T07:57:24.49Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "RentIt_admin_services",
+              "Title": "RentIt_admin_services.csproj",
               "DocumentMoniker": "C:\\Users\\Rohit\\OneDrive\\Desktop\\Cdac Project\\Git repo\\Rent-It\\backend\\RentIt_admin_services\\RentIt_admin_services\\RentIt_admin_services.csproj",
               "RelativeDocumentMoniker": "RentIt_admin_services\\RentIt_admin_services.csproj",
               "ToolTip": "C:\\Users\\Rohit\\OneDrive\\Desktop\\Cdac Project\\Git repo\\Rent-It\\backend\\RentIt_admin_services\\RentIt_admin_services\\RentIt_admin_services.csproj",
               "RelativeToolTip": "RentIt_admin_services\\RentIt_admin_services.csproj",
               "ViewState": "AgIAAA4AAAAAAAAAAADwvxQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-01-29T07:54:51.689Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-29T07:54:51.689Z"
             }
           ]
         }
