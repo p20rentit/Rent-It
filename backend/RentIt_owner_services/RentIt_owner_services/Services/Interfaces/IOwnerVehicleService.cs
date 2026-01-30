@@ -14,7 +14,25 @@ namespace RentIt_owner_services.Services.Interfaces
         // Update existing vehicle
         Task UpdateVehicle(int vehicleId, AddVehicleRequest request);
 
+        // Update vehicle description only (for edit)
+        Task UpdateVehicleDescription(int vehicleId, UpdateVehicleDescriptionRequest request);
+
         Task AddVehicleImage(AddVehicleImageRequest request);
+
+        // Add multiple images at once
+        Task AddMultipleVehicleImages(AddMultipleVehicleImagesRequest request);
+
+        // Get vehicle details for edit page
+        Task<VehicleDetailsDto> GetVehicleDetails(int vehicleId);
+
+        // Delete vehicle
+        Task DeleteVehicle(int vehicleId);
+
+        // Delete single image
+        Task DeleteVehicleImage(int imageId);
+
+        // Set primary image
+        Task SetPrimaryImage(UpdatePrimaryImageRequest request);
 
     }
 }

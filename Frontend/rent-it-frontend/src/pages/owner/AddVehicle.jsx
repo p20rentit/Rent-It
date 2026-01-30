@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ownerApi } from "../../api/axios";
-import { addVehicle, uploadVehicleImage } from "../../services/VehicleService";
+import { addVehicle, uploadMultipleVehicleImages } from "../../services/VehicleService";
 
 function AddVehicle() {
     const navigate = useNavigate();
@@ -100,19 +100,20 @@ function AddVehicle() {
         setLoading(true);
 
         try {
-            // Step 1: Add vehicle (uses ownerApi on port 9091)
-            const vehicleId = await addVehicle(userId, formData);
+            // Step 1: Add vehicle (uses ownerApi)
+            // Backend returns { message, vehicleId }
+            const response = await addVehicle(userId, formData);
+            const vehicleId = response.vehicleId;
 
-            // Step 2: Upload images (uses ownerApi on port 9091)
+            // Step 2: Upload images (uses ownerApi)
             if (images.length > 0) {
-                for (let i = 0; i < images.length; i++) {
-                    const formDataImg = new FormData();
-                    formDataImg.append("vehicleId", vehicleId);
-                    formDataImg.append("isPrimary", i === primaryImageIndex);
-                    formDataImg.append("image", images[i]);
+                const formDataImg = new FormData();
+                images.forEach((file) => {
+                    formDataImg.append("Images", file);
+                });
+                formDataImg.append("PrimaryImageIndex", primaryImageIndex);
 
-                    await uploadVehicleImage(formDataImg);
-                }
+                await uploadMultipleVehicleImages(vehicleId, formDataImg);
             }
 
             setSuccess("Vehicle added successfully!");
@@ -311,15 +312,27 @@ function AddVehicle() {
                                 <div className="row">
                                     {images.map((img, index) => (
                                         <div key={index} className="col-md-3 mb-2">
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input"
-                                                    type="radio"
-                                                    name="primaryImage"
-                                                    checked={primaryImageIndex === index}
-                                                    onChange={() => setPrimaryImageIndex(index)}
+                                            <div className="card h-100">
+                                                <img
+                                                    src={URL.createObjectURL(img)}
+                                                    className="card-img-top"
+                                                    alt="Preview"
+                                                    style={{ height: "120px", objectFit: "cover" }}
                                                 />
-                                                <label className="form-check-label">{img.name}</label>
+                                                <div className="card-body p-2 text-center">
+                                                    <div className="form-check form-check-inline">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="radio"
+                                                            name="primaryImage"
+                                                            checked={primaryImageIndex === index}
+                                                            onChange={() => setPrimaryImageIndex(index)}
+                                                        />
+                                                        <label className="form-check-label small text-truncate d-block" style={{ maxWidth: "100%" }}>
+                                                            {img.name}
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
