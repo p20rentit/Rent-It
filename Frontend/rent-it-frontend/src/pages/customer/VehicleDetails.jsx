@@ -184,7 +184,10 @@ function VehicleDetails() {
                                 </tbody>
                             </table>
 
-                            <button className="btn btn-success btn-lg w-100 mt-4">
+                            <button
+                                className="btn btn-success btn-lg w-100 mt-4"
+                                onClick={() => navigate(`/customer/book/${id}`)}
+                            >
                                 <i className="bi bi-calendar-check me-2"></i>
                                 Book Now
                             </button>

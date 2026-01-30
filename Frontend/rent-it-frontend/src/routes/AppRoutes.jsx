@@ -28,6 +28,7 @@ import AdminLayout from "../components/AdminLayout";
 import CustomerVehicleList from "../pages/customer/VehicleList";
 import VehicleDetails from "../pages/customer/VehicleDetails";
 import MyBookings from "../pages/customer/MyBookings";
+import CreateBooking from "../pages/customer/CreateBooking";
 import CustomerLayout from "../components/CustomerLayout";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -60,6 +61,7 @@ function AppRoutes() {
           <Route index element={<CustomerDashboard />} />
           <Route path="vehicles" element={<CustomerVehicleList />} />
           <Route path="vehicles/:id" element={<VehicleDetails />} />
+          <Route path="book/:vehicleId" element={<CreateBooking />} />
           <Route path="bookings" element={<MyBookings />} />
         </Route>
 

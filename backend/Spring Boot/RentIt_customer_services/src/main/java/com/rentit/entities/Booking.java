@@ -39,6 +39,12 @@ public class Booking {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "pickup_time")
+    private java.time.LocalTime pickupTime;
+
+    @Column(name = "return_time")
+    private java.time.LocalTime returnTime;
+
     // ---------- PAYMENT ----------
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
@@ -49,6 +55,9 @@ public class Booking {
 
     @Column(name = "paid_amount", precision = 10, scale = 2)
     private BigDecimal paidAmount;
+
+    @Column(name = "deposit_amount", precision = 10, scale = 2)
+    private BigDecimal depositAmount;
 
     // ---------- BOOKING STATUS ----------
     @Enumerated(EnumType.STRING)
@@ -108,6 +117,22 @@ public class Booking {
         this.endDate = endDate;
     }
 
+    public java.time.LocalTime getPickupTime() {
+        return pickupTime;
+    }
+
+    public void setPickupTime(java.time.LocalTime pickupTime) {
+        this.pickupTime = pickupTime;
+    }
+
+    public java.time.LocalTime getReturnTime() {
+        return returnTime;
+    }
+
+    public void setReturnTime(java.time.LocalTime returnTime) {
+        this.returnTime = returnTime;
+    }
+
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;
     }
@@ -130,6 +155,14 @@ public class Booking {
 
     public void setPaidAmount(BigDecimal paidAmount) {
         this.paidAmount = paidAmount;
+    }
+
+    public BigDecimal getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
     }
 
     public BookingStatus getBookingStatus() {
