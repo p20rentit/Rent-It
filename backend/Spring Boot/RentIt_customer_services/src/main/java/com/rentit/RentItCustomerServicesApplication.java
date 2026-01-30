@@ -10,7 +10,7 @@ public class RentItCustomerServicesApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RentItCustomerServicesApplication.class, args);
-		System.out.println("RentIt Customer Services started on port 7001");
+		System.out.println("RentIt Customer Services started on port 9093");
 	}
 
 }

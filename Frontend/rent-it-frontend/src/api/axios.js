@@ -32,7 +32,7 @@ api.interceptors.request.use(
 // Base URL: http://localhost:5004 (Owner microservice - .NET backend)
 // Note: In future, when all services are merged, use only one URL
 const ownerApi = axios.create({
-  baseURL: "http://localhost:5004/api",
+  baseURL: "http://localhost:9092/api",
 });
 
 // Request interceptor to add token to headers for owner API
@@ -60,7 +60,7 @@ ownerApi.interceptors.request.use(
 // Used for: Admin User Management, Vehicle Management (view/block/unblock)
 // Base URL: http://localhost:6001 (Admin microservice - .NET backend)
 const adminApi = axios.create({
-  baseURL: "http://localhost:6001/api",
+  baseURL: "http://localhost:9091/api",
 });
 
 // Request interceptor to add token to headers for admin API
@@ -88,7 +88,7 @@ adminApi.interceptors.request.use(
 // Used for: Customer Vehicle Browsing (view all vehicles, view single vehicle)
 // Base URL: http://localhost:7001/api (Customer microservice - Spring Boot backend)
 const customerApi = axios.create({
-  baseURL: "http://localhost:7001/api",
+  baseURL: "http://localhost:9093/api",
 });
 
 // Request interceptor to add token to headers for customer API
