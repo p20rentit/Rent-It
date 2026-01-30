@@ -125,6 +125,127 @@
   },
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "DeleteVehicle",
+    "RelativePath": "api/owner/vehicles/{vehicleId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "UpdateVehicleDescription",
+    "RelativePath": "api/owner/vehicles/{vehicleId}/description",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "RentIt_owner_services.DTOs.UpdateVehicleDescriptionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "GetVehicleDetails",
+    "RelativePath": "api/owner/vehicles/{vehicleId}/details",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "UploadMultipleVehicleImages",
+    "RelativePath": "api/owner/vehicles/{vehicleId}/images/multiple",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "VehicleId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Images",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PrimaryImageIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "SetPrimaryImage",
+    "RelativePath": "api/owner/vehicles/{vehicleId}/images/primary",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "RentIt_owner_services.DTOs.UpdatePrimaryImageRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
+    "Method": "DeleteVehicleImage",
+    "RelativePath": "api/owner/vehicles/images/{imageId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "imageId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UploadVehicleImage",
     "RelativePath": "api/owner/vehicles/upload-image",
     "HttpMethod": "POST",

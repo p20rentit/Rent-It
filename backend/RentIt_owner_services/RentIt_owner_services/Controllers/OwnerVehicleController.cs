@@ -71,5 +71,99 @@ namespace RentIt_owner_services.Controllers
             });
         }
 
+        // POST: api/owner/vehicles/{vehicleId}/images/multiple
+        // Upload multiple images for a vehicle
+        [HttpPost("{vehicleId}/images/multiple")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadMultipleVehicleImages(
+            int vehicleId,
+            [FromForm] AddMultipleVehicleImagesRequest request)
+        {
+            // Ensure vehicleId matches
+            request.VehicleId = vehicleId;
+
+            await _ownerVehicleService.AddMultipleVehicleImages(request);
+
+            return Ok(new
+            {
+                message = "Vehicle images uploaded successfully"
+            });
+        }
+
+        // GET: api/owner/vehicles/{vehicleId}/details
+        // Get vehicle details for edit page (includes all images)
+        [HttpGet("{vehicleId}/details")]
+        public async Task<IActionResult> GetVehicleDetails(int vehicleId)
+        {
+            try 
+            {
+                var details = await _ownerVehicleService.GetVehicleDetails(vehicleId);
+                return Ok(details);
+            }
+            catch (Exception ex) when (ex.Message == "Vehicle not found")
+            {
+                return NotFound(new { message = "Vehicle not found" });
+            }
+        }
+
+        // PUT: api/owner/vehicles/{vehicleId}/description
+        // Update only vehicle description
+        [HttpPut("{vehicleId}/description")]
+        public async Task<IActionResult> UpdateVehicleDescription(
+            int vehicleId,
+            [FromBody] UpdateVehicleDescriptionRequest request)
+        {
+            await _ownerVehicleService.UpdateVehicleDescription(vehicleId, request);
+
+            return Ok(new
+            {
+                message = "Vehicle description updated successfully"
+            });
+        }
+
+        // DELETE: api/owner/vehicles/{vehicleId}
+        // Delete vehicle and all its images (cascade delete)
+        [HttpDelete("{vehicleId}")]
+        public async Task<IActionResult> DeleteVehicle(int vehicleId)
+        {
+            await _ownerVehicleService.DeleteVehicle(vehicleId);
+
+            return Ok(new
+            {
+                message = "Vehicle deleted successfully"
+            });
+        }
+
+        // DELETE: api/owner/vehicles/images/{imageId}
+        // Delete a single vehicle image
+        [HttpDelete("images/{imageId}")]
+        public async Task<IActionResult> DeleteVehicleImage(int imageId)
+        {
+            await _ownerVehicleService.DeleteVehicleImage(imageId);
+
+            return Ok(new
+            {
+                message = "Vehicle image deleted successfully"
+            });
+        }
+
+        // PUT: api/owner/vehicles/{vehicleId}/images/primary
+        // Set a specific image as primary
+        [HttpPut("{vehicleId}/images/primary")]
+        public async Task<IActionResult> SetPrimaryImage(
+            int vehicleId,
+            [FromBody] UpdatePrimaryImageRequest request)
+        {
+            // Ensure vehicleId matches
+            request.VehicleId = vehicleId;
+
+            await _ownerVehicleService.SetPrimaryImage(request);
+
+            return Ok(new
+            {
+                message = "Primary image updated successfully"
+            });
+        }
+
     }
 }

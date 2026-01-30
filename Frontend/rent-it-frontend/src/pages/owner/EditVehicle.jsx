@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ownerApi } from "../../api/axios";
-import { uploadVehicleImage } from "../../services/VehicleService";
+import {
+    fetchVehicleDetails,
+    updateVehicleDescription,
+    uploadMultipleVehicleImages,
+    deleteVehicleImage,
+    setPrimaryImage
+} from "../../services/VehicleService";
 
 function EditVehicle() {
     const navigate = useNavigate();
@@ -13,6 +19,10 @@ function EditVehicle() {
     const [brands, setBrands] = useState([]);
     const [models, setModels] = useState([]);
     const [fuelTypes, setFuelTypes] = useState([]);
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     const [vehicle, setVehicle] = useState(null);
     const [formData, setFormData] = useState({
@@ -25,10 +35,9 @@ function EditVehicle() {
         description: "",
     });
 
-    const [newImages, setNewImages] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [images, setImages] = useState([]); // Existing images from backend
+    const [newImages, setNewImages] = useState([]); // New images to upload
+    const [primaryImageIndex, setPrimaryImageIndex] = useState(0); // For new images
 
     useEffect(() => {
         loadDropdownData();
@@ -37,9 +46,6 @@ function EditVehicle() {
 
     const loadDropdownData = async () => {
         try {
-            // ✅ Dropdown data uses owner API (port 5004 - .NET backend)
-            // VehicleTypes, Brands, Models, FuelTypes are on .NET service
-
             const vtRes = await ownerApi.get("/vehicletypes");
             setVehicleTypes(vtRes.data);
 
@@ -56,49 +62,57 @@ function EditVehicle() {
 
     const loadVehicle = async () => {
         try {
-            // Vehicle data uses owner API (port 9091)
-            const res = await ownerApi.get(`/owner/vehicles/${userId}`);
-            const vehicleData = res.data.find((v) => v.vehicleId === parseInt(id));
+            setLoading(true);
+            // Fetch comprehensive vehicle details including all images
+            const vehicleData = await fetchVehicleDetails(id);
 
             if (vehicleData) {
-                setVehicle(vehicleData);
+                // Normalize data to handle potential PascalCase/camelCase differences
+                const normalizedVehicle = {
+                    vehicleId: vehicleData.vehicleId || vehicleData.VehicleId,
+                    vehicleTypeId: vehicleData.vehicleTypeId || vehicleData.VehicleTypeId,
+                    brandId: vehicleData.brandId || vehicleData.BrandId,
+                    modelId: vehicleData.modelId || vehicleData.ModelId,
+                    fuelTypeId: vehicleData.fuelTypeId || vehicleData.FuelTypeId,
+                    vehicleNumber: vehicleData.vehicleNumber || vehicleData.VehicleNumber,
+                    vehicleRcNumber: vehicleData.vehicleRcNumber || vehicleData.VehicleRcNumber,
+                    ac: (vehicleData.ac !== undefined) ? vehicleData.ac : vehicleData.Ac,
+                    description: vehicleData.description || vehicleData.Description || "",
+                    primaryImage: vehicleData.primaryImage || vehicleData.PrimaryImage,
+                    images: vehicleData.images || vehicleData.Images || []
+                };
+
+                setVehicle(normalizedVehicle);
+                setImages(normalizedVehicle.images);
+
+                // Populate form data
                 setFormData({
-                    vehicleTypeId: vehicleData.vehicleTypeId || "",
-                    modelId: vehicleData.modelId || "",
-                    fuelTypeId: vehicleData.fuelTypeId || "",
-                    vehicleNumber: vehicleData.vehicleNumber || "",
-                    vehicleRcNumber: vehicleData.vehicleRcNumber || "",
-                    ac: vehicleData.ac || 0,
-                    description: vehicleData.description || "",
+                    vehicleTypeId: normalizedVehicle.vehicleTypeId || "",
+                    modelId: normalizedVehicle.modelId || "",
+                    fuelTypeId: normalizedVehicle.fuelTypeId || "",
+                    vehicleNumber: normalizedVehicle.vehicleNumber || "",
+                    vehicleRcNumber: normalizedVehicle.vehicleRcNumber || "",
+                    ac: normalizedVehicle.ac || 0,
+                    description: normalizedVehicle.description || "",
                 });
 
-                // Load models for the brand (uses owner API - port 5004)
-                if (vehicleData.brandId) {
-                    const modelRes = await ownerApi.get(`/models/brand/${vehicleData.brandId}`);
+                // Load models for the brand
+                if (normalizedVehicle.brandId) {
+                    const modelRes = await ownerApi.get(`/models/brand/${normalizedVehicle.brandId}`);
                     setModels(modelRes.data);
                 }
-            } else {
-                setError("Vehicle not found");
             }
         } catch (err) {
-            setError("Failed to load vehicle");
+            setError("Failed to load vehicle details. Please try again.");
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
+    // Brand change handler (just keeping it for compatibility, though field is read-only)
     const handleBrandChange = async (e) => {
-        const brandId = e.target.value;
-        if (brandId) {
-            try {
-                // Models API uses owner API (port 5004)
-                const res = await ownerApi.get(`/models/brand/${brandId}`);
-                setModels(res.data);
-            } catch (err) {
-                console.error("Error loading models:", err);
-            }
-        } else {
-            setModels([]);
-        }
+        // Read-only in edit mode
     };
 
     const handleChange = (e) => {
@@ -111,6 +125,34 @@ function EditVehicle() {
         setNewImages(files);
     };
 
+    const handleDeleteImage = async (imageId) => {
+        if (!window.confirm("Are you sure you want to delete this image?")) return;
+
+        try {
+            setLoading(true);
+            await deleteVehicleImage(imageId);
+            setSuccess("Image deleted successfully");
+            loadVehicle(); // Reload to see changes
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to delete image");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSetPrimary = async (imageId) => {
+        try {
+            setLoading(true);
+            await setPrimaryImage(id, imageId);
+            setSuccess("Primary image updated successfully");
+            loadVehicle(); // Reload to see changes
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update primary image");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         setError("");
@@ -118,25 +160,28 @@ function EditVehicle() {
         setLoading(true);
 
         try {
-            // Update vehicle details (uses ownerApi on port 9091)
-            await ownerApi.put(`/owner/vehicles/${id}`, formData);
+            // 1. Update description only
+            await updateVehicleDescription(id, formData.description);
 
-            // Upload new images if any (uses ownerApi on port 9091)
+            // 2. Upload new images if any
             if (newImages.length > 0) {
-                for (let i = 0; i < newImages.length; i++) {
-                    const formDataImg = new FormData();
-                    formDataImg.append("vehicleId", id);
-                    formDataImg.append("isPrimary", i === 0);
-                    formDataImg.append("image", newImages[i]);
+                const formDataImg = new FormData();
+                newImages.forEach((file) => {
+                    formDataImg.append("Images", file);
+                });
+                formDataImg.append("PrimaryImageIndex", primaryImageIndex);
 
-                    await uploadVehicleImage(formDataImg);
-                }
+                await uploadMultipleVehicleImages(id, formDataImg);
+
+                // Clear file input
+                setNewImages([]);
+                document.getElementById('newImagesInput').value = '';
+
+                // Reload vehicle data to show new images
+                await loadVehicle();
             }
 
             setSuccess("Vehicle updated successfully!");
-            setTimeout(() => {
-                navigate("/owner/vehicles");
-            }, 1500);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to update vehicle");
             console.error(err);
@@ -145,11 +190,29 @@ function EditVehicle() {
         }
     };
 
+    if (error) {
+        return (
+            <div className="container mt-5">
+                <div className="alert alert-danger" role="alert">
+                    <h4 className="alert-heading">Error</h4>
+                    <p>{error}</p>
+                    <hr />
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/owner/vehicles")}
+                    >
+                        Back to List
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (!vehicle) {
         return (
             <div className="container mt-5">
                 <div className="text-center">
-                    <div className="spinner-border" role="status">
+                    <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
                 </div>
@@ -157,9 +220,21 @@ function EditVehicle() {
         );
     }
 
+    if (loading && !vehicle.vehicleId) {
+        return (
+            <div className="text-center mt-5">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="mt-4 mb-5">
-            <div className="card shadow">
+        <div className="container mt-4">
+            <h2 className="mb-4">Edit Vehicle</h2>
+
+            <div className="card shadow-sm">
                 <div className="card-header">
                     <h3>Edit Vehicle</h3>
                 </div>
@@ -167,18 +242,21 @@ function EditVehicle() {
                     {error && <div className="alert alert-danger">{error}</div>}
                     {success && <div className="alert alert-success">{success}</div>}
 
+                    <div className="alert alert-info">
+                        Note: You can only edit the description and manage images. Other details are read-only.
+                    </div>
+
                     <form onSubmit={handleUpdate}>
                         <h5 className="mb-3">Vehicle Details</h5>
 
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Vehicle Type *</label>
+                                <label className="form-label">Vehicle Type</label>
                                 <select
                                     className="form-select"
                                     name="vehicleTypeId"
                                     value={formData.vehicleTypeId}
-                                    onChange={handleChange}
-                                    required
+                                    disabled
                                 >
                                     <option value="">Select Vehicle Type</option>
                                     {vehicleTypes.map((vt) => (
@@ -190,18 +268,17 @@ function EditVehicle() {
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Brand *</label>
+                                <label className="form-label">Brand</label>
                                 <select
                                     className="form-select"
-                                    onChange={handleBrandChange}
-                                    required
+                                    value={vehicle.brandId}
+                                    disabled
                                 >
                                     <option value="">Select Brand</option>
                                     {brands.map((brand) => (
                                         <option
                                             key={brand.brandId}
                                             value={brand.brandId}
-                                            selected={brand.brandName === vehicle.brandName}
                                         >
                                             {brand.brandName}
                                         </option>
@@ -212,14 +289,12 @@ function EditVehicle() {
 
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Model *</label>
+                                <label className="form-label">Model</label>
                                 <select
                                     className="form-select"
                                     name="modelId"
                                     value={formData.modelId}
-                                    onChange={handleChange}
-                                    required
-                                    disabled={models.length === 0}
+                                    disabled
                                 >
                                     <option value="">Select Model</option>
                                     {models.map((model) => (
@@ -231,13 +306,12 @@ function EditVehicle() {
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Fuel Type *</label>
+                                <label className="form-label">Fuel Type</label>
                                 <select
                                     className="form-select"
                                     name="fuelTypeId"
                                     value={formData.fuelTypeId}
-                                    onChange={handleChange}
-                                    required
+                                    disabled
                                 >
                                     <option value="">Select Fuel Type</option>
                                     {fuelTypes.map((ft) => (
@@ -251,28 +325,24 @@ function EditVehicle() {
 
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Vehicle Number *</label>
+                                <label className="form-label">Vehicle Number</label>
                                 <input
                                     type="text"
                                     className="form-control"
-                                    name="vehicleNumber"
-                                    placeholder="MH12AB1234"
                                     value={formData.vehicleNumber}
-                                    onChange={handleChange}
-                                    required
+                                    readOnly
+                                    disabled
                                 />
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">RC Number *</label>
+                                <label className="form-label">RC Number</label>
                                 <input
                                     type="text"
                                     className="form-control"
-                                    name="vehicleRcNumber"
-                                    placeholder="RC123456"
                                     value={formData.vehicleRcNumber}
-                                    onChange={handleChange}
-                                    required
+                                    readOnly
+                                    disabled
                                 />
                             </div>
                         </div>
@@ -284,12 +354,8 @@ function EditVehicle() {
                                     <input
                                         className="form-check-input"
                                         type="radio"
-                                        name="ac"
-                                        value="1"
                                         checked={formData.ac === 1}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, ac: parseInt(e.target.value) })
-                                        }
+                                        disabled
                                     />
                                     <label className="form-check-label">Yes</label>
                                 </div>
@@ -297,12 +363,8 @@ function EditVehicle() {
                                     <input
                                         className="form-check-input"
                                         type="radio"
-                                        name="ac"
-                                        value="0"
                                         checked={formData.ac === 0}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, ac: parseInt(e.target.value) })
-                                        }
+                                        disabled
                                     />
                                     <label className="form-check-label">No</label>
                                 </div>
@@ -310,7 +372,7 @@ function EditVehicle() {
                         </div>
 
                         <div className="mb-3">
-                            <label className="form-label">Description</label>
+                            <label className="form-label">Description (Editable)</label>
                             <textarea
                                 className="form-control"
                                 rows="3"
@@ -323,22 +385,55 @@ function EditVehicle() {
 
                         <hr />
 
-                        <h5 className="mb-3">Current Image</h5>
-                        {vehicle.primaryImage && (
-                            <div className="mb-3">
-                                <img
-                                    src={`data:image/jpeg;base64,${vehicle.primaryImage}`}
-                                    alt="Current vehicle"
-                                    className="img-thumbnail"
-                                    style={{ maxWidth: "300px" }}
-                                />
-                            </div>
-                        )}
+                        <h5 className="mb-3">Manage Images</h5>
 
-                        <h5 className="mb-3">Upload New Images (Optional)</h5>
+                        <div className="row mb-4">
+                            {images.map((img) => (
+                                <div key={img.vehicleImageId} className="col-md-4 mb-3">
+                                    <div className="card h-100">
+                                        <div className="position-relative">
+                                            <img
+                                                src={`data:image/jpeg;base64,${img.image}`}
+                                                className="card-img-top"
+                                                alt="Vehicle"
+                                                style={{ height: "180px", objectFit: "cover" }}
+                                            />
+                                            {img.isPrimary && (
+                                                <span className="position-absolute top-0 start-0 badge bg-success m-2">
+                                                    Primary
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="card-body p-2 d-flex justify-content-between">
+                                            {!img.isPrimary && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-outline-primary"
+                                                    onClick={() => handleSetPrimary(img.vehicleImageId)}
+                                                    disabled={loading}
+                                                >
+                                                    Set Primary
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger ms-auto"
+                                                onClick={() => handleDeleteImage(img.vehicleImageId)}
+                                                disabled={loading || images.length <= 1}
+                                                title={images.length <= 1 ? "Cannot delete the last image" : "Delete image"}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <h5 className="mb-3">Upload New Images</h5>
                         <div className="mb-3">
-                            <label className="form-label">Add More Images (Max 5MB each)</label>
                             <input
+                                id="newImagesInput"
                                 type="file"
                                 className="form-control"
                                 accept="image/jpeg,image/jpg,image/png"
@@ -346,21 +441,55 @@ function EditVehicle() {
                                 onChange={handleImageChange}
                             />
                             <small className="text-muted">
-                                Upload additional images for this vehicle
+                                Upload additional images. You can select multiple files.
                             </small>
                         </div>
 
-                        <div className="d-flex justify-content-between">
+                        {newImages.length > 0 && (
+                            <div className="mb-3">
+                                <label className="form-label">Select Primary (for new images only if no existing primary)</label>
+                                <div className="row">
+                                    {newImages.map((img, index) => (
+                                        <div key={index} className="col-md-3 mb-2">
+                                            <div className="card h-100">
+                                                <img
+                                                    src={URL.createObjectURL(img)}
+                                                    className="card-img-top"
+                                                    alt="Preview"
+                                                    style={{ height: "120px", objectFit: "cover" }}
+                                                />
+                                                <div className="card-body p-2 text-center">
+                                                    <div className="form-check form-check-inline">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="radio"
+                                                            name="primaryNewImage"
+                                                            checked={primaryImageIndex === index}
+                                                            onChange={() => setPrimaryImageIndex(index)}
+                                                        />
+                                                        <label className="form-check-label small text-truncate d-block" style={{ maxWidth: "100%" }}>
+                                                            {img.name}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="d-flex justify-content-between mt-4">
                             <button
                                 type="button"
                                 className="btn btn-secondary"
                                 onClick={() => navigate("/owner/vehicles")}
                                 disabled={loading}
                             >
-                                Cancel
+                                Back to List
                             </button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
-                                {loading ? "Updating Vehicle..." : "Update Vehicle"}
+                                {loading ? "Saving Changes..." : "Save Changes"}
                             </button>
                         </div>
                     </form>

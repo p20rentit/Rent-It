@@ -332,10 +332,10 @@ C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_own
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\RentIt_o.821CBE6C.Up2Date
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\RentIt_owner_services.dll
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\refint\RentIt_owner_services.dll
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\RentIt_owner_services.pdb
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\RentIt_owner_services.genruntimeconfig.cache
 C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\ref\RentIt_owner_services.dll
+C:\Users\Rohit\OneDrive\Desktop\Cdac Project\Git repo\Rent-It\backend\RentIt_owner_services\RentIt_owner_services\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
