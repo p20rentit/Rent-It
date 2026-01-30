@@ -170,4 +170,5 @@ public class Vehicle {
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
     }
+
 }
