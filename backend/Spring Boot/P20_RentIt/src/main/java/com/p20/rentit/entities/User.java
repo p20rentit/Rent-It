@@ -8,6 +8,7 @@ import jakarta.persistence.*;
     name = "user",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "phone"),
         @UniqueConstraint(columnNames = "driving_licence_no"),
         @UniqueConstraint(columnNames = "pan_no")
     }
@@ -74,8 +75,9 @@ public class User {
     private String answer;
 
     // ---------- STATUS ----------
+    @Enumerated(EnumType.STRING)
     @Column(name = "is_active")
-    private boolean isActive;
+    private UserStatus isActive;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status")
@@ -206,12 +208,12 @@ public class User {
         this.answer = answer;
     }
 
-    public boolean isActive() {
+    public UserStatus getIsActive() {
         return isActive;
     }
 
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setIsActive(UserStatus isActive) {
+        this.isActive = isActive;
     }
 
     public ApprovalStatus getApprovalStatus() {

@@ -12,7 +12,7 @@ import OwnerDashboard from "../pages/OwnerDashboard";
 import CustomerDashboard from "../pages/CustomerDashboard";
 
 // Owner vehicle pages
-import VehicleList from "../pages/owner/VehicleList";
+import OwnerVehicleList from "../pages/owner/VehicleList";
 import AddVehicle from "../pages/owner/AddVehicle";
 import EditVehicle from "../pages/owner/EditVehicle";
 import OwnerLayout from "../components/OwnerLayout";
@@ -22,6 +22,12 @@ import CustomersList from "../pages/admin/CustomersList";
 import OwnersList from "../pages/admin/OwnersList";
 import AllVehicles from "../pages/admin/AllVehicles";
 import AdminLayout from "../components/AdminLayout";
+
+// Customer pages
+import CustomerVehicleList from "../pages/customer/VehicleList";
+import VehicleDetails from "../pages/customer/VehicleDetails";
+import MyBookings from "../pages/customer/MyBookings";
+import CustomerLayout from "../components/CustomerLayout";
 
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
@@ -39,15 +45,22 @@ function AppRoutes() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* CUSTOMER */}
+
+        {/* CUSTOMER - All routes use CustomerLayout with sidebar */}
         <Route
           path="/customer"
           element={
             <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-              <CustomerDashboard />
+              <CustomerLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Nested routes - will render inside CustomerLayout's <Outlet /> */}
+          <Route index element={<CustomerDashboard />} />
+          <Route path="vehicles" element={<CustomerVehicleList />} />
+          <Route path="vehicles/:id" element={<VehicleDetails />} />
+          <Route path="bookings" element={<MyBookings />} />
+        </Route>
 
         {/* ADMIN - All routes use AdminLayout with sidebar */}
         <Route
@@ -76,7 +89,7 @@ function AppRoutes() {
         >
           {/* Nested routes - will render inside OwnerLayout's <Outlet /> */}
           <Route index element={<OwnerDashboard />} />
-          <Route path="vehicles" element={<VehicleList />} />
+          <Route path="vehicles" element={<OwnerVehicleList />} />
           <Route path="vehicles/add" element={<AddVehicle />} />
           <Route path="vehicles/edit/:id" element={<EditVehicle />} />
         </Route>

@@ -8,6 +8,7 @@ public class P20RentItApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(P20RentItApplication.class, args);
+		System.out.println("RentIt Authentication Services started on port 9090");
 	}
 
 }
