@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { fetchOwnerVehicles } from "../../services/VehicleService";
+import { fetchOwnerVehicles, deleteVehicle } from "../../services/VehicleService";
 
 function VehicleList() {
     const navigate = useNavigate();
@@ -18,6 +18,7 @@ function VehicleList() {
         try {
             setLoading(true);
             const data = await fetchOwnerVehicles(userId);
+            console.log("Fetched vehicles:", data); // Debug log
             setVehicles(data);
         } catch (error) {
             console.error("Error fetching vehicles:", error);
@@ -27,7 +28,27 @@ function VehicleList() {
     };
 
     const handleEdit = (vehicleId) => {
+        if (!vehicleId) {
+            console.error("Invalid vehicle ID for edit");
+            return;
+        }
         navigate(`/owner/vehicles/edit/${vehicleId}`);
+    };
+
+    const handleDelete = async (vehicleId) => {
+        if (!vehicleId) {
+            console.error("Invalid vehicle ID for delete");
+            return;
+        }
+        if (window.confirm("Are you sure you want to delete this vehicle? This will also delete all associated images.")) {
+            try {
+                await deleteVehicle(vehicleId);
+                loadVehicles(); // Reload list after delete
+            } catch (error) {
+                console.error("Error deleting vehicle:", error);
+                alert("Failed to delete vehicle");
+            }
+        }
     };
 
     return (
@@ -54,57 +75,74 @@ function VehicleList() {
                 </div>
             ) : (
                 <div className="row">
-                    {vehicles.map((vehicle) => (
-                        <div key={vehicle.vehicleId} className="col-md-6 col-lg-4 mb-4">
-                            <div className="card h-100">
-                                {vehicle.primaryImage && (
-                                    <img
-                                        src={`data:image/jpeg;base64,${vehicle.primaryImage}`}
-                                        className="card-img-top"
-                                        alt={vehicle.modelName}
-                                        style={{ height: "200px", objectFit: "cover" }}
-                                    />
-                                )}
-                                <div className="card-body">
-                                    <h5 className="card-title">
-                                        {vehicle.brandName} {vehicle.modelName}
-                                    </h5>
-                                    <p className="card-text">
-                                        <strong>Vehicle Number:</strong> {vehicle.vehicleNumber}
-                                        <br />
-                                        <strong>Type:</strong> {vehicle.vehicleTypeName}
-                                        <br />
-                                        <strong>Fuel:</strong> {vehicle.fuelTypeName}
-                                        <br />
-                                        <strong>AC:</strong> {vehicle.ac === 1 ? "Yes" : "No"}
-                                        <br />
-                                        <strong>Status:</strong>{" "}
-                                        <span
-                                            className={`badge ${vehicle.status === "ACTIVE"
+                    {vehicles.map((vehicle) => {
+                        // Handle potential casing issues (backend might return PascalCase)
+                        const vId = vehicle.vehicleId || vehicle.VehicleId;
+
+                        return (
+                            <div key={vId} className="col-md-6 col-lg-4 mb-4">
+                                <div className="card h-100">
+                                    {vehicle.primaryImage && (
+                                        <img
+                                            src={`data:image/jpeg;base64,${vehicle.primaryImage}`}
+                                            className="card-img-top"
+                                            alt={vehicle.modelName}
+                                            style={{ height: "200px", objectFit: "cover" }}
+                                        />
+                                    )}
+                                    <div className="card-body">
+                                        <h5 className="card-title">
+                                            {vehicle.brandName} {vehicle.modelName}
+                                        </h5>
+                                        <p className="card-text">
+                                            <strong>Vehicle Number:</strong> {vehicle.vehicleNumber}
+                                            <br />
+                                            <strong>Type:</strong> {vehicle.vehicleTypeName}
+                                            <br />
+                                            <strong>Fuel:</strong> {vehicle.fuelTypeName}
+                                            <br />
+                                            <strong>AC:</strong> {vehicle.ac === 1 ? "Yes" : "No"}
+                                            <br />
+                                            <strong>Status:</strong>{" "}
+                                            <span
+                                                className={`badge ${vehicle.status === "ACTIVE"
                                                     ? "bg-success"
                                                     : "bg-secondary"
-                                                }`}
-                                        >
-                                            {vehicle.status}
-                                        </span>
-                                    </p>
-                                    {vehicle.description && (
-                                        <p className="card-text">
-                                            <small className="text-muted">{vehicle.description}</small>
+                                                    }`}
+                                            >
+                                                {vehicle.status}
+                                            </span>
                                         </p>
-                                    )}
-                                </div>
-                                <div className="card-footer">
-                                    <button
-                                        className="btn btn-sm btn-outline-primary w-100"
-                                        onClick={() => handleEdit(vehicle.vehicleId)}
-                                    >
-                                        Edit
-                                    </button>
+                                        {vehicle.description && (
+                                            <p className="card-text">
+                                                <small className="text-muted">{vehicle.description}</small>
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="card-footer d-flex gap-2">
+                                        <button
+                                            className="btn btn-sm btn-outline-info flex-grow-1"
+                                            onClick={() => navigate(`/owner/vehicles/view/${vId}`)}
+                                        >
+                                            View
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-outline-primary flex-grow-1"
+                                            onClick={() => handleEdit(vId)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-outline-danger flex-grow-1"
+                                            onClick={() => handleDelete(vId)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>
