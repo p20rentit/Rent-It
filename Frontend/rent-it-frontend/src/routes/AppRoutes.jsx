@@ -62,7 +62,6 @@ function AppRoutes() {
           <Route path="bookings" element={<MyBookings />} />
         </Route>
 
-
         {/* ADMIN - All routes use AdminLayout with sidebar */}
         <Route
           path="/admin"
