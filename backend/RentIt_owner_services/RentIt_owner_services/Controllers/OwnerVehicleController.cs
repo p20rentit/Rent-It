@@ -6,7 +6,7 @@ using RentIt_owner_services.Services.Interfaces;
 namespace RentIt_owner_services.Controllers
 {
     [ApiController]
-    [Route("api/owner/vehicles")]
+    [Route("owner/vehicles")]
     public class OwnerVehicleController : Controller
     {
         private readonly IOwnerVehicleService _ownerVehicleService;

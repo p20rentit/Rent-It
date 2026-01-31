@@ -1,28 +1,26 @@
-import { customerApi } from "../api/axios";
+import api from "../api/axios";
 
-// Uses customerApi which points to http://localhost:9093/api
-
-const BASE_URL = "/bookings";
+const BASE_URL = "/customer/bookings";
 
 const createBooking = async (bookingData) => {
-  try {
-    const response = await customerApi.post(BASE_URL, bookingData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post(BASE_URL, bookingData);
+  return response.data;
 };
 
 const getBookingsByUser = async (userId) => {
-  try {
-    const response = await customerApi.get(`${BASE_URL}/user/${userId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(`${BASE_URL}/user/${userId}`);
+  return response.data;
+};
+
+const getBookedDates = async (vehicleId) => {
+  const response = await api.get(
+    `${BASE_URL}/vehicle/${vehicleId}/booked-dates`
+  );
+  return response.data;
 };
 
 export default {
   createBooking,
   getBookingsByUser,
+  getBookedDates
 };

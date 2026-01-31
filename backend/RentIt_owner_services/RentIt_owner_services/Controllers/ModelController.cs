@@ -7,7 +7,7 @@ namespace RentIt_owner_services.Controllers
     // Controller for Model endpoints
     // Base route: /api/models
     [ApiController]
-    [Route("api/models")]
+    [Route("owner/models")]
     public class ModelController : ControllerBase
     {
         private readonly IModelService _service;

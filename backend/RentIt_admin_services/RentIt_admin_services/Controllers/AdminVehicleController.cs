@@ -5,7 +5,7 @@ using RentIt_admin_services.Servises.Interfaces;
 namespace RentIt_admin_services.Controllers
 {
     [ApiController]
-    [Route("api/admin/vehicles")]
+    [Route("admin/vehicles")]
     public class AdminVehicleController : Controller
     {
         private readonly IAdminVehicleService _adminVehicleService;

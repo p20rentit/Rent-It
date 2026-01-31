@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { customerApi } from "../../api/axios";
+import api from "../../api/axios";
 
 function VehicleDetails() {
     const { id } = useParams();
@@ -19,7 +19,7 @@ function VehicleDetails() {
         try {
             setLoading(true);
             setError(null);
-            const response = await customerApi.get(`/customer/vehicles/${id}`);
+            const response = await api.get(`/customer/vehicles/${id}`);
             console.log("✅ Vehicle details fetched:", response.data);
             setVehicle(response.data);
         } catch (err) {

@@ -5,7 +5,7 @@ using RentIt_admin_services.Servises.Interfaces;
 namespace RentIt_admin_services.Controllers
 {
     [ApiController]
-    [Route("api/admin/users")]
+    [Route("admin/users")]
     public class AdminUserController : Controller
     {
         private readonly IAdminUserService _adminUserService;

@@ -7,7 +7,7 @@ namespace RentIt_owner_services.Controllers
     // Controller for FuelType endpoints
     // Base route: /api/fueltypes
     [ApiController]
-    [Route("api/fueltypes")]
+    [Route("owner/fueltypes")]
     public class FuelTypeController : ControllerBase
     {
         private readonly IFuelTypeService _service;

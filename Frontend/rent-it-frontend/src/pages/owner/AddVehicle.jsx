@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ownerApi } from "../../api/axios";
+import api from "../../api/axios";
 import { addVehicle, uploadMultipleVehicleImages } from "../../services/VehicleService";
 
 function AddVehicle() {
@@ -36,23 +36,22 @@ function AddVehicle() {
     const loadDropdownData = async () => {
         try {
             console.log("🔍 Starting to load dropdown data...");
-            console.log("🌐 Backend URL:", ownerApi.defaults.baseURL);
 
             // Fetch vehicle types
             console.log("📞 Calling: GET /vehicletypes");
-            const vtRes = await ownerApi.get("/vehicletypes");
+            const vtRes = await api.get("/owner/vehicletypes");
             console.log("✅ Vehicle Types Response:", vtRes.data);
             setVehicleTypes(vtRes.data);
 
             // Fetch brands
             console.log("📞 Calling: GET /brands");
-            const brandRes = await ownerApi.get("/brands");
+            const brandRes = await api.get("/owner/brands");
             console.log("✅ Brands Response:", brandRes.data);
             setBrands(brandRes.data);
 
             // Fetch fuel types
             console.log("📞 Calling: GET /fueltypes");
-            const fuelRes = await ownerApi.get("/fueltypes");
+            const fuelRes = await api.get("/owner/fueltypes");
             console.log("✅ Fuel Types Response:", fuelRes.data);
             setFuelTypes(fuelRes.data);
 
@@ -72,7 +71,7 @@ function AddVehicle() {
         if (brandId) {
             try {
                 console.log(`📞 Calling: GET /models/brand/${brandId}`);
-                const res = await ownerApi.get(`/models/brand/${brandId}`);
+                const res = await api.get(`/owner/models/brand/${brandId}`);
                 console.log("✅ Models Response:", res.data);
                 setModels(res.data);
             } catch (err) {

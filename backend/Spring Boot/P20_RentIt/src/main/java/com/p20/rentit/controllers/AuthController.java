@@ -27,7 +27,7 @@ import com.p20.rentit.security.JwtUtil;
 import com.p20.rentit.services.AuthService;
 
 
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {

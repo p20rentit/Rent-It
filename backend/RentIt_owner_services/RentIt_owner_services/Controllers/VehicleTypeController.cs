@@ -7,7 +7,7 @@ namespace RentIt_owner_services.Controllers
     // Controller for VehicleType endpoints
     // Base route: /api/vehicletypes
     [ApiController]
-    [Route("api/vehicletypes")]
+    [Route("owner/vehicletypes")]
     public class VehicleTypeController : ControllerBase
     {
         private readonly IVehicleTypeService _service;

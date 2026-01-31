@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { customerApi } from "../../api/axios";
+import api from "../../api/axios";
 
 function VehicleList() {
     const [vehicles, setVehicles] = useState([]);
@@ -16,7 +16,7 @@ function VehicleList() {
         try {
             setLoading(true);
             setError(null);
-            const response = await customerApi.get("/customer/vehicles");
+            const response = await api.get("/customer/vehicles");
             console.log("✅ Vehicles fetched:", response.data);
             setVehicles(response.data);
         } catch (err) {

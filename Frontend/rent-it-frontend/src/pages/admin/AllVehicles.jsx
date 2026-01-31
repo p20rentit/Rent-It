@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { adminApi } from "../../api/axios";
+import api from "../../api/axios";
+
 
 function AllVehicles() {
     const [vehicles, setVehicles] = useState([]);
@@ -14,7 +15,7 @@ function AllVehicles() {
     const fetchVehicles = async () => {
         try {
             setLoading(true);
-            const response = await adminApi.get("/admin/vehicles");
+            const response = await api.get("/admin/vehicles");
             setVehicles(response.data);
             setError(null);
         } catch (err) {
@@ -29,7 +30,7 @@ function AllVehicles() {
         if (!confirm("Are you sure you want to block this vehicle?")) return;
 
         try {
-            await adminApi.put(`/admin/vehicles/${vehicleId}/block`);
+            await api.put(`/admin/vehicles/${vehicleId}/block`);
             alert("Vehicle blocked successfully!");
             fetchVehicles(); // Refresh the list
         } catch (err) {
@@ -42,7 +43,7 @@ function AllVehicles() {
         if (!confirm("Are you sure you want to unblock this vehicle?")) return;
 
         try {
-            await adminApi.put(`/admin/vehicles/${vehicleId}/unblock`);
+            await api.put(`/admin/vehicles/${vehicleId}/unblock`);
             alert("Vehicle unblocked successfully!");
             fetchVehicles(); // Refresh the list
         } catch (err) {
