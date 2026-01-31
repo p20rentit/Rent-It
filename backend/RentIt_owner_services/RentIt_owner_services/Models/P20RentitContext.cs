@@ -109,6 +109,9 @@ public partial class P20RentitContext : DbContext
                 .HasColumnName("total_amount");
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
+            entity.Property(e => e.PickupTime).HasColumnName("pickup_time");
+            entity.Property(e => e.ReturnTime).HasColumnName("return_time");
+            entity.Property(e => e.DepositAmount).HasColumnName("deposit_amount");
 
             entity.HasOne(d => d.User).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.UserId)

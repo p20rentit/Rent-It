@@ -36,6 +36,24 @@ function OwnerLayout() {
                                     Add Vehicle
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link
+                                    className={`nav-link ${isActive("/owner/bookings")}`}
+                                    to="/owner/bookings"
+                                >
+                                    <i className="bi bi-calendar-check me-2"></i>
+                                    My Bookings
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link
+                                    className={`nav-link ${isActive("/owner/profile")}`}
+                                    to="/owner/profile"
+                                >
+                                    <i className="bi bi-person-circle me-2"></i>
+                                    My Profile
+                                </Link>
+                            </li>
                         </ul>
 
                         <hr />

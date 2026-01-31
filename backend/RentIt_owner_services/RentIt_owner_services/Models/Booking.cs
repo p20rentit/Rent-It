@@ -25,6 +25,10 @@ public partial class Booking
 
     public decimal? PaidAmount { get; set; }
 
+    public TimeOnly? PickupTime { get; set; }
+    public TimeOnly? ReturnTime { get; set; }
+    public decimal? DepositAmount { get; set; }
+
     public virtual ICollection<BookingRecord> BookingRecords { get; set; } = new List<BookingRecord>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();

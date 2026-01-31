@@ -16,6 +16,8 @@ import OwnerVehicleList from "../pages/owner/VehicleList";
 import AddVehicle from "../pages/owner/AddVehicle";
 import EditVehicle from "../pages/owner/EditVehicle";
 import ViewVehicle from "../pages/owner/ViewVehicle";
+import OwnerBookings from "../pages/owner/OwnerBookings";
+import OwnerProfile from "../pages/owner/OwnerProfile";
 import OwnerLayout from "../components/OwnerLayout";
 
 // Admin pages
@@ -98,6 +100,8 @@ function AppRoutes() {
           <Route path="vehicles/add" element={<AddVehicle />} />
           <Route path="vehicles/edit/:id" element={<EditVehicle />} />
           <Route path="vehicles/view/:id" element={<ViewVehicle />} />
+          <Route path="bookings" element={<OwnerBookings />} />
+          <Route path="profile" element={<OwnerProfile />} />
         </Route>
 
         {/* 404 */}
