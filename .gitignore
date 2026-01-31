@@ -1,3 +1,36 @@
-/.metadata/
-/.vscode/
-/.vscode/
+# =========================
+# GLOBAL IGNORE
+# =========================
+
+# -------- .NET --------
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# -------- Spring Boot / Java --------
+**/target/
+**/.metadata/
+**/.settings/
+**/.classpath
+**/.project
+
+# -------- Eclipse Workspace --------
+**/.plugins/
+
+# -------- Node / React --------
+**/node_modules/
+**/build/
+
+# -------- IDE --------
+.vscode/
+.idea/
+
+# -------- Logs --------
+*.log
+
+# -------- OS --------
+Thumbs.db
+.DS_Store
