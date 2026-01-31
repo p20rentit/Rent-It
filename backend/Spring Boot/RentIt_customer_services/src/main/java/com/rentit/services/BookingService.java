@@ -136,7 +136,8 @@ public class BookingService {
     }
 
     /**
-     * Returns true if there exists an active booking for vehicleId that overlaps the given date-time range
+     * Returns true if there exists an active booking for vehicleId that overlaps
+     * the given date-time range
      */
     public boolean isVehicleBooked(int vehicleId, java.time.LocalDateTime reqStart, java.time.LocalDateTime reqEnd) {
         List<Booking> bookings = bookingRepository.findActiveBookingsByVehicleId(vehicleId);
@@ -151,5 +152,37 @@ public class BookingService {
             }
         }
         return false;
+    }
+
+    @Transactional
+    public Booking cancelBooking(int bookingId, int userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (booking.getUser().getUserId() != userId) {
+            throw new RuntimeException("You are not authorized to cancel this booking.");
+        }
+
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new RuntimeException("Booking is already cancelled.");
+        }
+
+        // 2-day rule: Cancellation allowed only if starting date is at least 2 days
+        // away from today.
+        long daysUntilStart = ChronoUnit.DAYS.between(LocalDate.now(), booking.getStartingDate());
+        if (daysUntilStart < 2) {
+            throw new RuntimeException("Bookings can only be cancelled at least 2 days before the start date.");
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Record the cancellation
+        BookingRecord record = new BookingRecord();
+        record.setBooking(savedBooking);
+        record.setVehicleStatus(VehicleBookingStatus.CANCELLED);
+        bookingRecordRepository.save(record);
+
+        return savedBooking;
     }
 }

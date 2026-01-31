@@ -29,6 +29,8 @@ function CustomerProfile() {
 
   useEffect(() => {
     async function load() {
+      if (!userId) return; // Guard clause: Don't fetch if no user ID
+
       try {
         setLoading(true);
         setError("");
@@ -62,30 +64,29 @@ function CustomerProfile() {
     load();
   }, [userId]);
 
-  useEffect(() => {
-    // when selectedCity changes, fetch areas
-    async function loadAreas() {
-      if (!selectedCity) {
-        setAreas([]);
-        setSelectedArea(null);
-        return;
-      }
+  const handleCityChange = async (e) => {
+    const value = e.target.value ? Number(e.target.value) : null;
+    setSelectedCity(value);
+    setSelectedArea(null); // Reset area when city changes
+    setAreas([]);
+    setError("");
+
+    if (value) {
       try {
-        const res = await getAreasByCity(selectedCity);
+        const res = await getAreasByCity(value);
         setAreas(res);
-        // if new city doesn't contain previous area, clear it
-        if (!res.find((a) => a.areaId === selectedArea)) {
-          setSelectedArea(null);
-        }
       } catch (err) {
         console.error("Error fetching areas:", err);
       }
     }
-    loadAreas();
-  }, [selectedCity]);
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!userId) {
+      setError("User session is invalid. Please log in again.");
+      return;
+    }
     setSaving(true);
     setSuccess("");
     setError("");
@@ -102,6 +103,7 @@ function CustomerProfile() {
       return;
     }
 
+    // Only validate area if a city is selected
     if (selectedCity && !selectedArea) {
       setAreaError("Please select an area for the chosen city.");
       setSaving(false);
@@ -121,20 +123,67 @@ function CustomerProfile() {
     };
 
     try {
+      console.log("🚀 Saving profile...", { userId, payload });
       const updated = await updateCustomerProfile(userId, payload);
+      console.log("✅ Profile saved:", updated);
       setProfile(updated);
       setPhoneError("");
       setAreaError("");
       setAddressError("");
       setSuccess("Profile updated successfully.");
     } catch (err) {
-      console.error("Error updating profile:", err);
-      setError(err?.response?.data || "Failed to update profile.");
+      console.error("❌ Error updating profile:", err);
+      // Handle potentially complex error objects from Spring Boot
+      let msg = "Failed to update profile.";
+      if (err.response) {
+        if (typeof err.response.data === 'string') {
+          msg = err.response.data;
+        } else if (err.response.data?.message) {
+          msg = err.response.data.message;
+        } else {
+          msg = `Server Error: ${err.response.status} ${err.response.statusText}`;
+        }
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setError(msg);
     } finally {
       setSaving(false);
       setTimeout(() => setSuccess(""), 3000);
     }
   };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhone(value);
+
+    if (value && !/^\d{10,15}$/.test(value)) {
+      setPhoneError("Phone must be 10 to 15 digits.");
+    } else {
+      setPhoneError("");
+    }
+    setError("");
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setAddress(value);
+
+    if (value && value.trim().length < 5) {
+      setAddressError("Address must be at least 5 characters.");
+    } else {
+      setAddressError("");
+    }
+    setError("");
+  };
+
+  // Check for changes
+  const hasChanges = profile && (
+    phone !== (profile.phone || "") ||
+    address !== (profile.address || "") ||
+    selectedArea !== (profile.areaId || null) ||
+    selectedCity !== (profile.cityId || null)
+  );
 
   if (loading) {
     return (
@@ -175,33 +224,33 @@ function CustomerProfile() {
             <div className="card-body">
               <div className="mb-3">
                 <label className="form-label">Full Name</label>
-                <input type="text" className="form-control" value={`${profile.fname || ""} ${profile.mname || ""} ${profile.lname || ""}`} readOnly />
+                <input type="text" className="form-control" style={{ backgroundColor: "#e9ecef" }} value={`${profile.fname || ""} ${profile.mname || ""} ${profile.lname || ""}`} readOnly />
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Email</label>
-                <input type="email" className="form-control" value={profile.email || ""} readOnly />
+                <input type="email" className="form-control" style={{ backgroundColor: "#e9ecef" }} value={profile.email || ""} readOnly />
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Phone</label>
-                <input type="tel" className={`form-control ${phoneError ? 'is-invalid' : ''}`} value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(''); setError(''); }} />
+                <input type="tel" className={`form-control ${phoneError ? 'is-invalid' : ''}`} style={{ backgroundColor: "#ffffff" }} value={phone} onChange={handlePhoneChange} />
                 {phoneError && <div className="invalid-feedback">{phoneError}</div>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Driving Licence</label>
-                <input className="form-control" value={profile.drivingLicenceNo || ""} readOnly />
+                <input className="form-control" style={{ backgroundColor: "#e9ecef" }} value={profile.drivingLicenceNo || ""} readOnly />
               </div>
 
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">PAN</label>
-                  <input className="form-control" value={profile.panNo || ""} readOnly />
+                  <input className="form-control" style={{ backgroundColor: "#e9ecef" }} value={profile.panNo || ""} readOnly />
                 </div>
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Aadhaar</label>
-                  <input className="form-control" value={profile.adharNo || ""} readOnly />
+                  <input className="form-control" style={{ backgroundColor: "#e9ecef" }} value={profile.adharNo || ""} readOnly />
                 </div>
               </div>
             </div>
@@ -218,7 +267,7 @@ function CustomerProfile() {
             <div className="card-body">
               <div className="mb-3">
                 <label className="form-label">City</label>
-                <select className={`form-select`} value={selectedCity || ""} onChange={(e) => { setSelectedCity(e.target.value ? Number(e.target.value) : null); setError(''); }}>
+                <select className={`form-select`} style={{ backgroundColor: "#ffffff" }} value={selectedCity || ""} onChange={handleCityChange}>
                   <option value="">-- Select city --</option>
                   {cities.map((c) => (
                     <option key={c.cityId} value={c.cityId}>{c.cityName}</option>
@@ -228,7 +277,7 @@ function CustomerProfile() {
 
               <div className="mb-3">
                 <label className="form-label">Area</label>
-                <select className={`form-select ${areaError ? 'is-invalid' : ''}`} value={selectedArea || ""} onChange={(e) => { setSelectedArea(e.target.value ? Number(e.target.value) : null); setAreaError(''); setError(''); }}>
+                <select className={`form-select ${areaError ? 'is-invalid' : ''}`} style={{ backgroundColor: "#ffffff" }} value={selectedArea || ""} onChange={(e) => { setSelectedArea(e.target.value ? Number(e.target.value) : null); setAreaError(''); setError(''); }}>
                   <option value="">-- Select area --</option>
                   {areas.map((a) => (
                     <option key={a.areaId} value={a.areaId}>{a.areaName} ({a.pincode})</option>
@@ -239,12 +288,19 @@ function CustomerProfile() {
 
               <div className="mb-3">
                 <label className="form-label">Address</label>
-                <textarea className={`form-control ${addressError ? 'is-invalid' : ''}`} rows="3" value={address} onChange={(e) => { setAddress(e.target.value); setAddressError(''); setError(''); }}></textarea>
+                <textarea className={`form-control ${addressError ? 'is-invalid' : ''}`} style={{ backgroundColor: "#ffffff" }} rows="3" value={address} onChange={handleAddressChange}></textarea>
                 {addressError && <div className="invalid-feedback">{addressError}</div>}
               </div>
 
               <div className="d-flex justify-content-end">
-                <button className="btn btn-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+                <button
+                  className={`btn ${hasChanges ? 'btn-primary' : 'btn-secondary'}`}
+                  type="button"
+                  onClick={handleSave}
+                  disabled={!hasChanges || saving || phoneError || addressError}
+                >
+                  {saving ? 'Saving…' : 'Save changes'}
+                </button>
               </div>
 
             </div>

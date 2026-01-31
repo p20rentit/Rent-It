@@ -7,15 +7,19 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // Helper to format date as yyyy-mm-dd (DateOnly compatible) for API
+// Helper to format date as yyyy-mm-dd (DateOnly compatible) for API using Local Time
 const formatDate = (date) => {
     if (!date) return "";
-    return date.toISOString().split("T")[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 function CreateBooking() {
     const { vehicleId } = useParams();
     const navigate = useNavigate();
-    const { user } = useSelector((state) => state.auth);
+    const { userId } = useSelector((state) => state.auth);
 
     const [vehicle, setVehicle] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -91,6 +95,11 @@ function CreateBooking() {
             return;
         }
 
+        if (!userId) {
+            setError("You must be logged in to create a booking.");
+            return;
+        }
+
         try {
             // First check availability (prevents race conditions and gives friendly feedback)
             const startStr = formatDate(startDate);
@@ -105,7 +114,7 @@ function CreateBooking() {
             }
 
             const bookingDto = {
-                userId: user?.userId || user?.id || 2,
+                userId: parseInt(userId),
                 vehicleId: parseInt(vehicleId),
                 startingDate: startStr,
                 endDate: endStr,
@@ -215,7 +224,13 @@ function CreateBooking() {
                                             selected={startDate}
                                             onChange={(date) => {
                                                 setStartDate(date);
-                                                if (endDate && date > endDate) setEndDate(null);
+                                                // Real-time validation
+                                                if (endDate && date > endDate) {
+                                                    setError("Pickup date cannot be after return date.");
+                                                    setEndDate(null); // Reset invalid end date
+                                                } else {
+                                                    setError("");
+                                                }
                                             }}
                                             selectsStart
                                             startDate={startDate}
@@ -239,7 +254,14 @@ function CreateBooking() {
                                         <label className="form-label fw-bold">Return Date & Time</label>
                                         <DatePicker
                                             selected={endDate}
-                                            onChange={(date) => setEndDate(date)}
+                                            onChange={(date) => {
+                                                setEndDate(date);
+                                                if (startDate && date < startDate) {
+                                                    setError("Return date cannot be before pickup date.");
+                                                } else {
+                                                    setError("");
+                                                }
+                                            }}
                                             selectsEnd
                                             startDate={startDate}
                                             endDate={endDate}

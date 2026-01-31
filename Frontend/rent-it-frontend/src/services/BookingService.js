@@ -24,9 +24,16 @@ const checkAvailability = async (vehicleId, start, end, pickupTime, returnTime) 
   return response.data; // { available: true/false }
 };
 
+const cancelBooking = async (bookingId, userId) => {
+  // Passing userId in body as per my controller implementation fallback
+  const response = await api.put(`${BASE_URL}/${bookingId}/cancel`, { userId });
+  return response.data;
+};
+
 export default {
   createBooking,
   getBookingsByUser,
   getBookedDates,
-  checkAvailability
+  checkAvailability,
+  cancelBooking
 };

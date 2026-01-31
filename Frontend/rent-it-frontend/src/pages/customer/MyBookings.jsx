@@ -9,10 +9,10 @@ function MyBookings() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    const { user } = useSelector((state) => state.auth);
+    const { userId } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        const userId = user?.userId || user?.id || 2;
+        if (!userId) return; // Don't fetch if no user
 
         async function fetchBookings() {
             try {
@@ -29,7 +29,7 @@ function MyBookings() {
         }
 
         fetchBookings();
-    }, [user]);
+    }, [userId]);
 
     if (loading) {
         return (
@@ -129,7 +129,7 @@ function MyBookings() {
                                     </td>
                                     <td className="text-center">
                                         <div className="mb-2">
-                                            <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' ? 'bg-success' : 'bg-warning'} px-3`}>
+                                            <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' ? 'bg-success' : booking.bookingStatus === 'CANCELLED' ? 'bg-danger' : 'bg-warning'} px-3`}>
                                                 {booking.bookingStatus}
                                             </span>
                                         </div>
@@ -138,6 +138,50 @@ function MyBookings() {
                                                 Deposit: {booking.paymentStatus}
                                             </span>
                                         </div>
+                                        {(() => {
+                                            if (booking.bookingStatus === 'CANCELLED' || booking.bookingStatus === 'COMPLETED') return null;
+
+                                            // 2-day rule check
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0);
+
+                                            // Parse manually to ensure local time (YYYY-MM-DD -> Local Midnight)
+                                            // booking.startingDate is "YYYY-MM-DD"
+                                            const [y, m, d] = booking.startingDate.split('-').map(Number);
+                                            const startDate = new Date(y, m - 1, d); // Month is 0-indexed
+
+                                            const diffTime = startDate - today;
+                                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                            const isEligible = diffDays >= 2;
+
+                                            if (!isEligible) return null;
+
+                                            return (
+                                                <div className="mt-2">
+                                                    <button
+                                                        className="btn btn-outline-danger btn-sm"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        onClick={async () => {
+                                                            const confirm = window.confirm("Are you sure you want to cancel this booking?");
+                                                            if (confirm) {
+                                                                try {
+                                                                    console.log(`Attempting to cancel booking ${booking.bookingId} for user ${userId}`);
+                                                                    await BookingService.cancelBooking(booking.bookingId, userId);
+                                                                    setBookings(prev => prev.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'CANCELLED' } : b));
+                                                                    alert("Booking cancelled successfully.");
+                                                                } catch (err) {
+                                                                    console.error("Cancellation failed:", err);
+                                                                    const reason = err.response?.data?.message || err.response?.data || "Failed to cancel booking.";
+                                                                    alert(`Cancellation failed: ${reason}`);
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            );
+                                        })()}
                                     </td>
                                 </tr>
                             ))}
