@@ -40,6 +40,16 @@ function CustomerLayout() {
                             My Bookings
                         </Link>
                     </li>
+
+                    <li className="nav-item mb-2">
+                        <Link
+                            to="/customer/profile"
+                            className={`nav-link text-white ${isActive("/customer/profile")}`}
+                        >
+                            <i className="bi bi-person-circle me-2"></i>
+                            Profile
+                        </Link>
+                    </li>
                 </ul>
             </nav>
 

@@ -48,15 +48,14 @@ public class BookingService {
             throw new RuntimeException("End date cannot be before starting date.");
         }
 
-        // Check for overlaps
-        boolean isBooked = bookingRepository.existsByVehicleIdAndDateRange(
-                bookingDTO.getVehicleId(),
-                bookingDTO.getStartingDate(),
-                bookingDTO.getEndDate(),
-                BookingStatus.CANCELLED);
+        // Check for overlaps at datetime precision (uses pickup/return times)
+        java.time.LocalDateTime requestedStart = bookingDTO.getStartingDate().atTime(
+                bookingDTO.getPickupTime() != null ? bookingDTO.getPickupTime() : java.time.LocalTime.MIN);
+        java.time.LocalDateTime requestedEnd = bookingDTO.getEndDate().atTime(
+                bookingDTO.getReturnTime() != null ? bookingDTO.getReturnTime() : java.time.LocalTime.MAX);
 
-        if (isBooked) {
-            throw new RuntimeException("Vehicle is already booked for the selected dates.");
+        if (isVehicleBooked(bookingDTO.getVehicleId(), requestedStart, requestedEnd)) {
+            throw new RuntimeException("Vehicle is already booked for the selected dates/times.");
         }
 
         Vehicle vehicle = vehicleRepository.findById(bookingDTO.getVehicleId())
@@ -131,6 +130,26 @@ public class BookingService {
         List<Booking> bookings = bookingRepository.findActiveBookingsByVehicleId(vehicleId);
         return bookings.stream()
                 .flatMap(b -> b.getStartingDate().datesUntil(b.getEndDate().plusDays(1)))
+                .distinct()
+                .sorted()
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Returns true if there exists an active booking for vehicleId that overlaps the given date-time range
+     */
+    public boolean isVehicleBooked(int vehicleId, java.time.LocalDateTime reqStart, java.time.LocalDateTime reqEnd) {
+        List<Booking> bookings = bookingRepository.findActiveBookingsByVehicleId(vehicleId);
+        for (Booking b : bookings) {
+            java.time.LocalDateTime existingStart = b.getStartingDate().atTime(
+                    b.getPickupTime() != null ? b.getPickupTime() : java.time.LocalTime.MIN);
+            java.time.LocalDateTime existingEnd = b.getEndDate().atTime(
+                    b.getReturnTime() != null ? b.getReturnTime() : java.time.LocalTime.MAX);
+            // Overlap check: reqStart < existingEnd && reqEnd > existingStart
+            if (reqStart.isBefore(existingEnd) && reqEnd.isAfter(existingStart)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

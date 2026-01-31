@@ -3,8 +3,9 @@
 Customer-facing microservice for browsing and viewing vehicle details in the RentIt application.
 
 ## Port Configuration
-- **Port**: 7001
-- **Base URL**: `http://localhost:7001`
+- **Port**: 9093
+- **Base URL**: `http://localhost:9093`
+- **Development note**: Frontend calls services through the API Gateway at `http://localhost:8080` (e.g., `http://localhost:8080/customer/vehicles`)
 
 ## Database
 - **Database Name**: `p20_rentit`

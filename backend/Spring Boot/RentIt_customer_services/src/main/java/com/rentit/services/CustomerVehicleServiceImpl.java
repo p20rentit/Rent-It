@@ -25,9 +25,14 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
 
     @Override
     public List<VehicleDTO> getAllActiveVehicles() {
+        System.out.println("DEBUG: Service calling repository.findByStatusWithDetails(ACTIVE)");
         List<Vehicle> activeVehicles = vehicleRepository.findByStatusWithDetails(VehicleStatus.ACTIVE);
+        System.out.println("DEBUG: Repository returned " + (activeVehicles != null ? activeVehicles.size() : "null")
+                + " entities");
+
+        // Pass false to include only primary image (reduces payload size)
         return activeVehicles.stream()
-                .map(this::convertToDTO)
+                .map(v -> convertToDTO(v, false))
                 .collect(Collectors.toList());
     }
 
@@ -35,7 +40,7 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
     public VehicleDTO getActiveVehicleById(int vehicleId) {
         Vehicle vehicle = vehicleRepository.findByVehicleIdAndStatusWithDetails(vehicleId, VehicleStatus.ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found or not active with ID: " + vehicleId));
-        return convertToDTO(vehicle);
+        return convertToDTO(vehicle, true);
     }
 
     // ---------- HELPER METHODS ----------
@@ -43,7 +48,7 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
     /**
      * Convert Vehicle entity to VehicleDTO
      */
-    private VehicleDTO convertToDTO(Vehicle vehicle) {
+    private VehicleDTO convertToDTO(Vehicle vehicle, boolean includeAllImages) {
         VehicleDTO dto = new VehicleDTO();
 
         // Basic vehicle information
@@ -73,7 +78,7 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
         dto.setDescription(vehicle.getDescription());
 
         // Vehicle images
-        dto.setVehicleImages(convertVehicleImages(vehicle.getVehicleImages()));
+        dto.setVehicleImages(convertVehicleImages(vehicle.getVehicleImages(), includeAllImages));
 
         // Owner information
         dto.setOwner(convertToOwnerDTO(vehicle.getOwner()));
@@ -135,9 +140,29 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
     /**
      * Convert vehicle images to VehicleImageDTO list
      */
-    private List<VehicleImageDTO> convertVehicleImages(List<VehicleImage> images) {
+    private List<VehicleImageDTO> convertVehicleImages(List<VehicleImage> images, boolean includeAll) {
         if (images == null || images.isEmpty()) {
             return new ArrayList<>();
+        }
+
+        // If not including all, filtering for primary image
+        if (!includeAll) {
+            return images.stream()
+                    .filter(VehicleImage::isPrimary)
+                    .findFirst()
+                    .map(img -> {
+                        List<VehicleImageDTO> list = new ArrayList<>();
+                        list.add(convertToVehicleImageDTO(img));
+                        return list;
+                    })
+                    .orElseGet(() -> {
+                        // Fallback: if no primary, take the first one
+                        List<VehicleImageDTO> list = new ArrayList<>();
+                        if (!images.isEmpty()) {
+                            list.add(convertToVehicleImageDTO(images.get(0)));
+                        }
+                        return list;
+                    });
         }
 
         return images.stream()

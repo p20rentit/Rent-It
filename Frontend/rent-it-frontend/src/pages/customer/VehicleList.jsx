@@ -16,11 +16,23 @@ function VehicleList() {
         try {
             setLoading(true);
             setError(null);
+            console.log("🚀 Frontend: Fetching vehicles from /customer/vehicles");
             const response = await api.get("/customer/vehicles");
-            console.log("✅ Vehicles fetched:", response.data);
-            setVehicles(response.data);
+            console.log("✅ Frontend: API Response received:", response);
+            console.log("✅ Frontend: Data payload:", response.data);
+
+            if (Array.isArray(response.data)) {
+                console.log(`✅ Frontend: Loaded ${response.data.length} vehicles`);
+                setVehicles(response.data);
+            } else {
+                console.error("❌ Frontend: Unexpected response format (expected array):", response.data);
+                setError("Received invalid data format from server.");
+            }
         } catch (err) {
-            console.error("❌ Error fetching vehicles:", err);
+            console.error("❌ Frontend: Error fetching vehicles:", err);
+            if (err.response) {
+                console.error("❌ frontend: Server responded with:", err.response.status, err.response.data);
+            }
             setError("Failed to load vehicles. Please try again later.");
         } finally {
             setLoading(false);

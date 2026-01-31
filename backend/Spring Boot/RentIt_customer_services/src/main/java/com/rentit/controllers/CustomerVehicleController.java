@@ -27,10 +27,14 @@ public class CustomerVehicleController {
      */
     @GetMapping("/vehicles")
     public ResponseEntity<List<VehicleDTO>> getAllActiveVehicles() {
+        System.out.println("DEBUG: Request received for get all active vehicles");
         try {
             List<VehicleDTO> vehicles = customerVehicleService.getAllActiveVehicles();
+            System.out.println("DEBUG: Found " + (vehicles != null ? vehicles.size() : "null") + " vehicles");
             return ResponseEntity.ok(vehicles);
         } catch (Exception e) {
+            System.err.println("DEBUG: Error processing request inside Controller:");
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
