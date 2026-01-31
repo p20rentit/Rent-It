@@ -7,7 +7,7 @@ namespace RentIt_owner_services.Controllers
     // Controller for Brand endpoints
     // Base route: /api/brands
     [ApiController]
-    [Route("api/brands")]
+    [Route("owner/brands")]
     public class BrandController : ControllerBase
     {
         private readonly IBrandService _service;

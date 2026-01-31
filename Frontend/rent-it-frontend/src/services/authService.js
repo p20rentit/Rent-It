@@ -1,10 +1,8 @@
-import axios from "axios";
+import api from "../api/axios";
 
-const API_URL = "http://localhost:8080/auth";
-
-export const loginUser = (email, password) =>{
-    return axios.post(`${API_URL}/login`, {
-        email,
-        password,
-    });
+export const loginUser = (email, password) => {
+  return api.post("/auth/login", {
+    email,
+    password,
+  });
 };

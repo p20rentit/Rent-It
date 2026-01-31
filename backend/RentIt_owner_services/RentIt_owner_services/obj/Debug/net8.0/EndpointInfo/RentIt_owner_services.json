@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/brands": {
+    "/owner/brands": {
       "get": {
         "tags": [
           "Brand"
@@ -43,7 +43,7 @@
         }
       }
     },
-    "/api/fueltypes": {
+    "/owner/fueltypes": {
       "get": {
         "tags": [
           "FuelType"
@@ -81,7 +81,7 @@
         }
       }
     },
-    "/api/models/brand/{brandId}": {
+    "/owner/models/brand/{brandId}": {
       "get": {
         "tags": [
           "Model"
@@ -130,7 +130,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{ownerId}": {
+    "/owner/vehicles/{ownerId}": {
       "get": {
         "tags": [
           "OwnerVehicle"
@@ -193,7 +193,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{vehicleId}": {
+    "/owner/vehicles/{vehicleId}": {
       "put": {
         "tags": [
           "OwnerVehicle"
@@ -256,7 +256,7 @@
         }
       }
     },
-    "/api/owner/vehicles/upload-image": {
+    "/owner/vehicles/upload-image": {
       "post": {
         "tags": [
           "OwnerVehicle"
@@ -301,7 +301,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{vehicleId}/images/multiple": {
+    "/owner/vehicles/{vehicleId}/images/multiple": {
       "post": {
         "tags": [
           "OwnerVehicle"
@@ -361,7 +361,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{vehicleId}/details": {
+    "/owner/vehicles/{vehicleId}/details": {
       "get": {
         "tags": [
           "OwnerVehicle"
@@ -384,7 +384,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{vehicleId}/description": {
+    "/owner/vehicles/{vehicleId}/description": {
       "put": {
         "tags": [
           "OwnerVehicle"
@@ -426,7 +426,7 @@
         }
       }
     },
-    "/api/owner/vehicles/images/{imageId}": {
+    "/owner/vehicles/images/{imageId}": {
       "delete": {
         "tags": [
           "OwnerVehicle"
@@ -449,7 +449,7 @@
         }
       }
     },
-    "/api/owner/vehicles/{vehicleId}/images/primary": {
+    "/owner/vehicles/{vehicleId}/images/primary": {
       "put": {
         "tags": [
           "OwnerVehicle"
@@ -491,7 +491,7 @@
         }
       }
     },
-    "/api/vehicletypes": {
+    "/owner/vehicletypes": {
       "get": {
         "tags": [
           "VehicleType"

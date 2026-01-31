@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ownerApi } from "../../api/axios";
+import api from "../../api/axios";
 import {
     fetchVehicleDetails,
     updateVehicleDescription,
@@ -46,13 +46,13 @@ function EditVehicle() {
 
     const loadDropdownData = async () => {
         try {
-            const vtRes = await ownerApi.get("/vehicletypes");
+            const vtRes = await api.get("/owner/vehicletypes");
             setVehicleTypes(vtRes.data);
 
-            const brandRes = await ownerApi.get("/brands");
+            const brandRes = await api.get("/owner/brands");
             setBrands(brandRes.data);
 
-            const fuelRes = await ownerApi.get("/fueltypes");
+            const fuelRes = await api.get("/owner/fueltypes");
             setFuelTypes(fuelRes.data);
         } catch (err) {
             setError("Failed to load form data");
@@ -98,7 +98,7 @@ function EditVehicle() {
 
                 // Load models for the brand
                 if (normalizedVehicle.brandId) {
-                    const modelRes = await ownerApi.get(`/models/brand/${normalizedVehicle.brandId}`);
+                    const modelRes = await api.get(`/owner/models/brand/${normalizedVehicle.brandId}`);
                     setModels(modelRes.data);
                 }
             }

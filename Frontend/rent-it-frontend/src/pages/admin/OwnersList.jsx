@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { adminApi } from "../../api/axios";
+import api from "../../api/axios";
 
 function OwnersList() {
     const [owners, setOwners] = useState([]);
@@ -13,7 +13,7 @@ function OwnersList() {
     const fetchOwners = async () => {
         try {
             setLoading(true);
-            const response = await adminApi.get("/admin/users/owners");
+            const response = await api.get("/admin/users/owners");
             setOwners(response.data);
             setError(null);
         } catch (err) {
@@ -26,7 +26,7 @@ function OwnersList() {
 
     const handleApproval = async (userId, status) => {
         try {
-            await adminApi.put(`/admin/users/${userId}/approval`, {
+            await api.put(`/admin/users/${userId}/approval`, {
                 approvalStatus: status
             });
             alert(`User ${status} successfully!`);

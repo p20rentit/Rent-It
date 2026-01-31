@@ -2,7 +2,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminUserController",
     "Method": "UpdateUserApproval",
-    "RelativePath": "api/admin/users/{userId}/approval",
+    "RelativePath": "admin/users/{userId}/approval",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -23,7 +23,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminUserController",
     "Method": "GetAllCustomers",
-    "RelativePath": "api/admin/users/customers",
+    "RelativePath": "admin/users/customers",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -33,7 +33,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminUserController",
     "Method": "GetAllOwners",
-    "RelativePath": "api/admin/users/owners",
+    "RelativePath": "admin/users/owners",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -43,7 +43,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminUserController",
     "Method": "GetUsersByRole",
-    "RelativePath": "api/admin/users/role/{roleId}",
+    "RelativePath": "admin/users/role/{roleId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -59,7 +59,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminVehicleController",
     "Method": "GetAllVehicles",
-    "RelativePath": "api/admin/vehicles",
+    "RelativePath": "admin/vehicles",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -69,7 +69,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminVehicleController",
     "Method": "BlockVehicle",
-    "RelativePath": "api/admin/vehicles/{vehicleId}/block",
+    "RelativePath": "admin/vehicles/{vehicleId}/block",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -85,7 +85,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminVehicleController",
     "Method": "UpdateVehicleStatus",
-    "RelativePath": "api/admin/vehicles/{vehicleId}/status",
+    "RelativePath": "admin/vehicles/{vehicleId}/status",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -106,7 +106,7 @@
   {
     "ContainingType": "RentIt_admin_services.Controllers.AdminVehicleController",
     "Method": "UnblockVehicle",
-    "RelativePath": "api/admin/vehicles/{vehicleId}/unblock",
+    "RelativePath": "admin/vehicles/{vehicleId}/unblock",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,

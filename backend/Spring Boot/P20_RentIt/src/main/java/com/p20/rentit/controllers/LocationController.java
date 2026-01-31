@@ -14,8 +14,8 @@ import com.p20.rentit.entities.City;
 import com.p20.rentit.services.LocationService;
 
 @RestController
-@RequestMapping("/location")
-@CrossOrigin(origins = "http://localhost:5173/")
+@RequestMapping("/auth/location")
+//@CrossOrigin(origins = "http://localhost:5173/")
 public class LocationController {
 	
 	@Autowired

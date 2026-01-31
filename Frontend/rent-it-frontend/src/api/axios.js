@@ -1,120 +1,33 @@
 import axios from "axios";
 
 // ========================================
-// Main API Instance
+// SINGLE API INSTANCE (Through Gateway)
 // ========================================
-// Used for: Authentication, Registration, Forgot Password, Location Services
-// Base URL: http://localhost:8080 (Main backend services)
+// All services go through API Gateway (8080)
+
 const api = axios.create({
   baseURL: "http://localhost:8080",
 });
 
-// Request interceptor to add token to headers
+// Add token automatically
 api.interceptors.request.use(
   (config) => {
     console.log(`🚀 API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
     const token = localStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    console.error("Rohit❌ API Request Error:", error);
-    return Promise.reject(error);
-  }
-);
-
-// ========================================
-// Owner Services API Instance
-// ========================================
-// Used for: Owner Vehicle Management (CRUD operations)
-// Base URL: http://localhost:5004 (Owner microservice - .NET backend)
-// Note: In future, when all services are merged, use only one URL
-const ownerApi = axios.create({
-  baseURL: "http://localhost:9092/api",
-});
-
-// Request interceptor to add token to headers for owner API
-ownerApi.interceptors.request.use(
-  (config) => {
-    console.log(`🚀 OWNER API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token added to request");
+      console.log("🔑 Token added");
     } else {
-      console.log("⚠️ No token found in localStorage");
+      console.log("⚠️ No token found");
     }
+
     return config;
   },
   (error) => {
-    console.error("❌ OWNER API Request Error:", error);
+    console.error("❌ API Request Error:", error);
     return Promise.reject(error);
   }
 );
 
-// ========================================
-// Admin Services API Instance
-// ========================================
-// Used for: Admin User Management, Vehicle Management (view/block/unblock)
-// Base URL: http://localhost:6001 (Admin microservice - .NET backend)
-const adminApi = axios.create({
-  baseURL: "http://localhost:9091/api",
-});
-
-// Request interceptor to add token to headers for admin API
-adminApi.interceptors.request.use(
-  (config) => {
-    console.log(`🚀 ADMIN API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token added to request");
-    } else {
-      console.log("⚠️ No token found in localStorage");
-    }
-    return config;
-  },
-  (error) => {
-    console.error("❌ ADMIN API Request Error:", error);
-    return Promise.reject(error);
-  }
-);
-
-// ========================================
-// Customer Services API Instance
-// ========================================
-// Used for: Customer Vehicle Browsing (view all vehicles, view single vehicle)
-// Base URL: http://localhost:7001/api (Customer microservice - Spring Boot backend)
-const customerApi = axios.create({
-  baseURL: "http://localhost:9093/api",
-});
-
-// Request interceptor to add token to headers for customer API
-customerApi.interceptors.request.use(
-  (config) => {
-    console.log(`🚀 CUSTOMER API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token added to request");
-    } else {
-      console.log("⚠️ No token found in localStorage");
-    }
-    return config;
-  },
-  (error) => {
-    console.error("❌ CUSTOMER API Request Error:", error);
-    return Promise.reject(error);
-  }
-);
-
-// ========================================
-// Exports
-// ========================================
-export default api;        // For auth, registration, location services
-export { ownerApi };       // For owner vehicle services
-export { adminApi };       // For admin management services
-export { customerApi };    // For customer vehicle browsing services
-
+export default api;

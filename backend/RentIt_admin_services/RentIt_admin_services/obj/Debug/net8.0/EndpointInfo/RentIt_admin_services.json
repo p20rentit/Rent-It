@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/admin/users/customers": {
+    "/admin/users/customers": {
       "get": {
         "tags": [
           "AdminUser"
@@ -17,7 +17,7 @@
         }
       }
     },
-    "/api/admin/users/owners": {
+    "/admin/users/owners": {
       "get": {
         "tags": [
           "AdminUser"
@@ -29,7 +29,7 @@
         }
       }
     },
-    "/api/admin/users/role/{roleId}": {
+    "/admin/users/role/{roleId}": {
       "get": {
         "tags": [
           "AdminUser"
@@ -52,7 +52,7 @@
         }
       }
     },
-    "/api/admin/users/{userId}/approval": {
+    "/admin/users/{userId}/approval": {
       "put": {
         "tags": [
           "AdminUser"
@@ -94,7 +94,7 @@
         }
       }
     },
-    "/api/admin/vehicles": {
+    "/admin/vehicles": {
       "get": {
         "tags": [
           "AdminVehicle"
@@ -106,7 +106,7 @@
         }
       }
     },
-    "/api/admin/vehicles/{vehicleId}/block": {
+    "/admin/vehicles/{vehicleId}/block": {
       "put": {
         "tags": [
           "AdminVehicle"
@@ -129,7 +129,7 @@
         }
       }
     },
-    "/api/admin/vehicles/{vehicleId}/unblock": {
+    "/admin/vehicles/{vehicleId}/unblock": {
       "put": {
         "tags": [
           "AdminVehicle"
@@ -152,7 +152,7 @@
         }
       }
     },
-    "/api/admin/vehicles/{vehicleId}/status": {
+    "/admin/vehicles/{vehicleId}/status": {
       "put": {
         "tags": [
           "AdminVehicle"

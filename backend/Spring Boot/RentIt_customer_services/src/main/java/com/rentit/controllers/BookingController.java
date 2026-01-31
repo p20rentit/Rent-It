@@ -16,7 +16,7 @@ import com.rentit.entities.Booking;
 import com.rentit.services.BookingService;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/customer/bookings")
 public class BookingController {
 
     @Autowired

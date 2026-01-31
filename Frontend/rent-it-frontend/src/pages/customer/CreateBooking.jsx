@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BookingService from "../../services/BookingService";
-import { customerApi } from "../../api/axios";
+import api from "../../api/axios";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -38,8 +38,8 @@ function CreateBooking() {
                 setError("");
 
                 const [vehicleRes, bookedRes] = await Promise.all([
-                    customerApi.get(`/customer/vehicles/${vehicleId}`),
-                    customerApi.get(`/bookings/vehicle/${vehicleId}/booked-dates`)
+                    api.get(`/customer/vehicles/${vehicleId}`),
+                    api.get(`/customer/bookings/vehicle/${vehicleId}/booked-dates`)
                 ]);
 
                 if (isMounted) {

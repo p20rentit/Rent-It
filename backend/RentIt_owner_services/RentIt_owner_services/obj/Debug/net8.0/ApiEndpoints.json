@@ -2,7 +2,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.BrandController",
     "Method": "GetAll",
-    "RelativePath": "api/brands",
+    "RelativePath": "owner/brands",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -22,7 +22,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.FuelTypeController",
     "Method": "GetAll",
-    "RelativePath": "api/fueltypes",
+    "RelativePath": "owner/fueltypes",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -42,7 +42,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.ModelController",
     "Method": "GetByBrand",
-    "RelativePath": "api/models/brand/{brandId}",
+    "RelativePath": "owner/models/brand/{brandId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -68,7 +68,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "FetchOwnerVehicles",
-    "RelativePath": "api/owner/vehicles/{ownerId}",
+    "RelativePath": "owner/vehicles/{ownerId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -84,7 +84,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "AddVehicle",
-    "RelativePath": "api/owner/vehicles/{ownerId}",
+    "RelativePath": "owner/vehicles/{ownerId}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -105,7 +105,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UpdateVehicle",
-    "RelativePath": "api/owner/vehicles/{vehicleId}",
+    "RelativePath": "owner/vehicles/{vehicleId}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -126,7 +126,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "DeleteVehicle",
-    "RelativePath": "api/owner/vehicles/{vehicleId}",
+    "RelativePath": "owner/vehicles/{vehicleId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -142,7 +142,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UpdateVehicleDescription",
-    "RelativePath": "api/owner/vehicles/{vehicleId}/description",
+    "RelativePath": "owner/vehicles/{vehicleId}/description",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -163,7 +163,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "GetVehicleDetails",
-    "RelativePath": "api/owner/vehicles/{vehicleId}/details",
+    "RelativePath": "owner/vehicles/{vehicleId}/details",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -179,7 +179,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UploadMultipleVehicleImages",
-    "RelativePath": "api/owner/vehicles/{vehicleId}/images/multiple",
+    "RelativePath": "owner/vehicles/{vehicleId}/images/multiple",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -210,7 +210,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "SetPrimaryImage",
-    "RelativePath": "api/owner/vehicles/{vehicleId}/images/primary",
+    "RelativePath": "owner/vehicles/{vehicleId}/images/primary",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -231,7 +231,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "DeleteVehicleImage",
-    "RelativePath": "api/owner/vehicles/images/{imageId}",
+    "RelativePath": "owner/vehicles/images/{imageId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -247,7 +247,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
     "Method": "UploadVehicleImage",
-    "RelativePath": "api/owner/vehicles/upload-image",
+    "RelativePath": "owner/vehicles/upload-image",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -273,7 +273,7 @@
   {
     "ContainingType": "RentIt_owner_services.Controllers.VehicleTypeController",
     "Method": "GetAll",
-    "RelativePath": "api/vehicletypes",
+    "RelativePath": "owner/vehicletypes",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
