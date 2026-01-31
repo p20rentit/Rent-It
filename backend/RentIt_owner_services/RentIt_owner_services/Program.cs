@@ -37,8 +37,10 @@ namespace RentIt_owner_services
             builder.Services.AddSwaggerGen();
 
             // Prevent cyclic JSON error
-            builder.Services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            builder.Services.AddControllers().AddJsonOptions(x => {
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                x.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+            });
 
             // Database Configuration
             builder.Services.AddDbContext<P20RentitContext>(options =>
@@ -66,6 +68,9 @@ namespace RentIt_owner_services
 
             builder.Services.AddScoped<IFuelTypeRepository, FuelTypeRepository>();
             builder.Services.AddScoped<IFuelTypeService, FuelTypeService>();
+
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IOwnerProfileService, OwnerProfileService>();
 
             var app = builder.Build();
 

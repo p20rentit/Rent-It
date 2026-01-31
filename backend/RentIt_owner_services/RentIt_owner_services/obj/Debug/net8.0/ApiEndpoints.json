@@ -1,5 +1,21 @@
 [
   {
+    "ContainingType": "RentIt_owner_services.Controllers.BookingController",
+    "Method": "GetOwnerBookings",
+    "RelativePath": "owner/bookings/{ownerId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ownerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "RentIt_owner_services.Controllers.BrandController",
     "Method": "GetAll",
     "RelativePath": "owner/brands",
@@ -64,6 +80,69 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerProfileController",
+    "Method": "GetProfile",
+    "RelativePath": "owner/profile/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerProfileController",
+    "Method": "UpdateProfile",
+    "RelativePath": "owner/profile/{userId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "updateDto",
+        "Type": "RentIt_owner_services.DTOs.UpdateProfileDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerProfileController",
+    "Method": "GetCities",
+    "RelativePath": "owner/profile/cities",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RentIt_owner_services.Controllers.OwnerProfileController",
+    "Method": "GetAreas",
+    "RelativePath": "owner/profile/cities/{cityId}/areas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cityId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "RentIt_owner_services.Controllers.OwnerVehicleController",
