@@ -29,6 +29,7 @@ import CustomerVehicleList from "../pages/customer/VehicleList";
 import VehicleDetails from "../pages/customer/VehicleDetails";
 import MyBookings from "../pages/customer/MyBookings";
 import CreateBooking from "../pages/customer/CreateBooking";
+import CustomerProfile from "../pages/customer/CustomerProfile";
 import CustomerLayout from "../components/CustomerLayout";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -63,6 +64,7 @@ function AppRoutes() {
           <Route path="vehicles/:id" element={<VehicleDetails />} />
           <Route path="book/:vehicleId" element={<CreateBooking />} />
           <Route path="bookings" element={<MyBookings />} />
+          <Route path="profile" element={<CustomerProfile />} />
         </Route>
 
         {/* ADMIN - All routes use AdminLayout with sidebar */}

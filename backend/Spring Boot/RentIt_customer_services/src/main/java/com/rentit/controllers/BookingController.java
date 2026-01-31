@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.rentit.dto.CreateBookingDTO;
 import com.rentit.entities.Booking;
@@ -40,5 +42,19 @@ public class BookingController {
     @GetMapping("/vehicle/{vehicleId}/booked-dates")
     public ResponseEntity<List<java.time.LocalDate>> getBookedDates(@PathVariable int vehicleId) {
         return ResponseEntity.ok(bookingService.getBookedDates(vehicleId));
+    }
+
+    // Check if vehicle is available for the given date & time range
+    @GetMapping("/vehicle/{vehicleId}/availability")
+    public ResponseEntity<?> checkAvailability(
+            @PathVariable int vehicleId,
+            @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) java.time.LocalDate start,
+            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) java.time.LocalDate end,
+            @RequestParam("pickupTime") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) java.time.LocalTime pickupTime,
+            @RequestParam("returnTime") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) java.time.LocalTime returnTime) {
+        java.time.LocalDateTime reqStart = start.atTime(pickupTime != null ? pickupTime : java.time.LocalTime.MIN);
+        java.time.LocalDateTime reqEnd = end.atTime(returnTime != null ? returnTime : java.time.LocalTime.MAX);
+        boolean booked = bookingService.isVehicleBooked(vehicleId, reqStart, reqEnd);
+        return ResponseEntity.ok(java.util.Map.of("available", !booked));
     }
 }

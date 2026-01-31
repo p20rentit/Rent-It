@@ -19,8 +19,14 @@ const getBookedDates = async (vehicleId) => {
   return response.data;
 };
 
+const checkAvailability = async (vehicleId, start, end, pickupTime, returnTime) => {
+  const response = await api.get(`${BASE_URL}/vehicle/${vehicleId}/availability`, { params: { start, end, pickupTime, returnTime } });
+  return response.data; // { available: true/false }
+};
+
 export default {
   createBooking,
   getBookingsByUser,
-  getBookedDates
+  getBookedDates,
+  checkAvailability
 };

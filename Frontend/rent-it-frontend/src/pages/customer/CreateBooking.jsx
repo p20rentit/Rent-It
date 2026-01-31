@@ -45,7 +45,14 @@ function CreateBooking() {
                 if (isMounted) {
                     console.log('✅ [CreateBooking] Data received:', { vehicle: vehicleRes.data, dates: bookedRes.data });
                     setVehicle(vehicleRes.data);
-                    setBookedDates(bookedRes.data.map(dStr => new Date(dStr)));
+                    // Convert backend LocalDate (YYYY-MM-DD) into a local Date object
+                    const parseLocalDate = (iso) => {
+                        if (!iso) return null;
+                        const parts = iso.split("-").map(Number);
+                        // new Date(year, monthIndex, day) constructs a date in local timezone
+                        return new Date(parts[0], parts[1] - 1, parts[2]);
+                    };
+                    setBookedDates(bookedRes.data.map(dStr => parseLocalDate(dStr)));
                 }
             } catch (err) {
                 console.error('❌ [CreateBooking] Error:', err);
@@ -85,13 +92,25 @@ function CreateBooking() {
         }
 
         try {
+            // First check availability (prevents race conditions and gives friendly feedback)
+            const startStr = formatDate(startDate);
+            const endStr = formatDate(endDate);
+            const pickupTimeStr = pickupTime + ":00";
+            const returnTimeStr = returnTime + ":00";
+            const availability = await BookingService.checkAvailability(vehicleId, startStr, endStr, pickupTimeStr, returnTimeStr);
+
+            if (!availability || availability.available === false) {
+                setError("Selected dates/times are no longer available. Please choose different dates or times.");
+                return;
+            }
+
             const bookingDto = {
                 userId: user?.userId || user?.id || 2,
                 vehicleId: parseInt(vehicleId),
-                startingDate: formatDate(startDate),
-                endDate: formatDate(endDate),
-                pickupTime: pickupTime + ":00",
-                returnTime: returnTime + ":00"
+                startingDate: startStr,
+                endDate: endStr,
+                pickupTime: pickupTimeStr,
+                returnTime: returnTimeStr
             };
 
             await BookingService.createBooking(bookingDto);
