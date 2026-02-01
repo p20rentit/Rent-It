@@ -30,10 +30,22 @@ const cancelBooking = async (bookingId, userId) => {
   return response.data;
 };
 
+const confirmPickup = async (bookingId, userId) => {
+  // Passing userId in body just in case, though Gateway should inject header.
+  // The controller logic I wrote accepts body fallback.
+  const response = await api.post(`${BASE_URL}/${bookingId}/pickup`, { userId });
+  return response.data;
+};
+
 export default {
   createBooking,
   getBookingsByUser,
   getBookedDates,
   checkAvailability,
-  cancelBooking
+  cancelBooking,
+  confirmPickup,
+  requestReturn: async (bookingId, userId) => {
+    const response = await api.post(`${BASE_URL}/${bookingId}/return-request`, { userId });
+    return response.data;
+  }
 };

@@ -17,6 +17,15 @@ const formatDate = (date) => {
     return `${year}-${month}-${day}`;
 };
 
+// Helper to check if vehicle is available based on status from backend
+const isVehicleActive = (vehicle) => {
+    if (!vehicle) return false;
+    // Backend returns 'availabilityStatus' with value 'ACTIVE'
+    // Also checking legacy fields just in case, but 'ACTIVE' is the key
+    const status = vehicle.availabilityStatus || vehicle.status || vehicle.vehicleStatus;
+    return status && status.toUpperCase() === "ACTIVE";
+};
+
 function CreateBooking() {
     const { vehicleId } = useParams();
     const navigate = useNavigate();
@@ -115,8 +124,7 @@ function CreateBooking() {
         }
 
         // Prevent booking if vehicle is not available (client-side defensive check)
-        const status = vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName;
-        if (status && status.toUpperCase() !== "AVAILABLE") {
+        if (!isVehicleActive(vehicle)) {
             setError("This vehicle is currently not available for booking.");
             return;
         }
@@ -361,10 +369,10 @@ function CreateBooking() {
                                     <button
                                         type="submit"
                                         className="btn btn-success btn-lg shadow-sm"
-                                        disabled={!startDate || !endDate || !!error || (vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName)?.toUpperCase() !== "AVAILABLE"}
+                                        disabled={!startDate || !endDate || !!error || !isVehicleActive(vehicle)}
                                     >
                                         <i className="bi bi-shield-lock-fill me-2"></i>
-                                        {(vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName)?.toUpperCase() !== "AVAILABLE" ? "Vehicle not available" : "Pay Deposit & Confirm Booking"}
+                                        {!isVehicleActive(vehicle) ? "Vehicle not available" : "Pay Deposit & Confirm Booking"}
                                     </button>
                                     <button
                                         type="button"

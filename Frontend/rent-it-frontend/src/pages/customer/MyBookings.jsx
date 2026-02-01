@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import BookingService from "../../services/BookingService";
+import PaymentService from "../../services/PaymentService";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -42,8 +43,33 @@ function MyBookings() {
         );
     }
 
+    async function handlePayment(booking, type) {
+        let amountToPay = 0;
+        if (type === 'DEPOSIT') {
+            amountToPay = booking.depositAmount - (booking.paidAmount || 0);
+            if (amountToPay <= 0) amountToPay = booking.depositAmount; // Fallback
+        } else if (type === 'REMAINING') {
+            amountToPay = booking.totalAmount - (booking.paidAmount || 0);
+        }
+
+        const method = window.prompt(`Proceed to pay ₹${amountToPay}? Enter Payment Method (CARD, UPI, NETBANKING):`, "CARD");
+        if (!method) return;
+
+        try {
+            await PaymentService.processPayment(booking.bookingId, amountToPay, method);
+            alert("Payment Successful!");
+            // Refresh bookings
+            const data = await BookingService.getBookingsByUser(userId);
+            setBookings(data);
+        } catch (err) {
+            console.error("Payment failed", err);
+            alert("Payment Failed: " + (err.response?.data?.message || err.message));
+        }
+    }
+
     return (
         <div className="container mt-4 pb-5">
+
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="mb-0">My Bookings</h2>
                 <button className="btn btn-primary btn-sm" onClick={() => navigate("/customer/vehicles")}>
@@ -126,6 +152,26 @@ function MyBookings() {
                                             <span className="small">Security Deposit:</span>
                                             <span className="fw-bold small">₹{booking.depositAmount}</span>
                                         </div>
+                                        {booking.paidAmount > booking.totalAmount && booking.bookingStatus !== 'COMPLETED' && (
+                                            <div className="d-flex justify-content-between text-success mt-1 border-top pt-1">
+                                                <span className="small fw-bold">Refundable:</span>
+                                                <span className="fw-bold small">₹{booking.paidAmount - booking.totalAmount} (on return)</span>
+                                            </div>
+                                        )}
+                                        {booking.bookingStatus === 'COMPLETED' && (
+                                            <div className="mt-1 border-top pt-1">
+                                                {booking.paidAmount > booking.totalAmount ? (
+                                                    <div className="d-flex justify-content-between text-success">
+                                                        <span className="small fw-bold">Refunded:</span>
+                                                        <span className="fw-bold small">₹{booking.paidAmount - booking.totalAmount}</span>
+                                                    </div>
+                                                ) : booking.paidAmount === booking.totalAmount ? (
+                                                    <div className="text-center text-muted small fst-italic">
+                                                        All payments settled
+                                                    </div>
+                                                ) : null}
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="text-center">
                                         <div className="mb-2">
@@ -135,9 +181,109 @@ function MyBookings() {
                                         </div>
                                         <div>
                                             <span className={`badge rounded-pill ${booking.paymentStatus === 'SUCCESS' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-secondary bg-opacity-10 text-secondary border border-secondary'} px-2`} style={{ fontSize: '0.7rem' }}>
-                                                Deposit: {booking.paymentStatus}
+                                                {booking.paymentStatus}
                                             </span>
+                                            {booking.paidAmount < booking.totalAmount && booking.bookingStatus !== 'CANCELLED' && booking.bookingStatus !== 'COMPLETED' && (
+                                                <div className="mt-1 small text-muted">
+                                                    Paid: ₹{booking.paidAmount} / ₹{booking.totalAmount}
+                                                </div>
+                                            )}
                                         </div>
+
+                                        {/* Payment Buttons */}
+                                        {booking.bookingStatus !== 'CANCELLED' && booking.bookingStatus !== 'COMPLETED' && (
+                                            <div className="d-flex flex-column gap-1">
+                                                {/* Pay Deposit Button */}
+                                                {(booking.paymentStatus === 'PENDING' || booking.paidAmount < booking.depositAmount) && (
+                                                    <button
+                                                        className="btn btn-success btn-sm py-0 mb-1"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        onClick={() => handlePayment(booking, 'DEPOSIT')}
+                                                    >
+                                                        Pay Deposit (₹{booking.depositAmount - booking.paidAmount > 0 ? booking.depositAmount - booking.paidAmount : booking.depositAmount})
+                                                    </button>
+                                                )}
+
+                                                {/* Pay Remaining Button */}
+                                                {(booking.paymentStatus === 'PARTIAL' || (booking.paidAmount >= booking.depositAmount && booking.paidAmount < booking.totalAmount)) && (
+                                                    <button
+                                                        className="btn btn-primary btn-sm py-0 mb-1"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        onClick={() => handlePayment(booking, 'REMAINING')}
+                                                    >
+                                                        Pay Remaining (₹{booking.totalAmount - booking.paidAmount})
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Pickup Confirmation Logic */}
+                                        {(() => {
+                                            const isConfirmed = booking.bookingStatus === 'CONFIRMED';
+                                            if (!isConfirmed) return null;
+
+                                            // Time check
+                                            const [y, m, d] = booking.startingDate.split('-').map(Number);
+                                            const [h, min] = booking.pickupTime.split(':').map(Number);
+                                            const pickupDate = new Date(y, m - 1, d, h, min, 0);
+                                            const now = new Date();
+
+                                            if (now >= pickupDate) {
+                                                return (
+                                                    <div className="mt-2">
+                                                        <button
+                                                            className="btn btn-primary btn-sm"
+                                                            style={{ fontSize: '0.75rem' }}
+                                                            onClick={async () => {
+                                                                if (window.confirm("Confirm that you have picked up the vehicle?")) {
+                                                                    try {
+                                                                        await BookingService.confirmPickup(booking.bookingId, userId);
+                                                                        alert("Vehicle pickup confirmed!");
+                                                                        setBookings(prev => prev.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'ONGOING' } : b));
+                                                                    } catch (err) {
+                                                                        console.error("Pickup confirmation failed", err);
+                                                                        alert("Failed to confirm pickup: " + (err.response?.data?.message || err.message));
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                            Confirm Pickup
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
+                                            return null;
+                                        })()}
+
+                                        {/* Return Request Logic */}
+                                        {booking.bookingStatus === 'ONGOING' && (
+                                            <div className="mt-2">
+                                                <button
+                                                    className="btn btn-warning btn-sm text-dark"
+                                                    style={{ fontSize: '0.75rem' }}
+                                                    onClick={async () => {
+                                                        if (window.confirm("Are you sure you want to return the vehicle? This will notify the owner.")) {
+                                                            try {
+                                                                await BookingService.requestReturn(booking.bookingId, userId);
+                                                                alert("Return requested! Waiting for owner checks.");
+                                                                setBookings(prev => prev.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'RETURN_REQUESTED' } : b));
+                                                            } catch (err) {
+                                                                console.error("Return request failed", err);
+                                                                alert("Failed to request return: " + (err.response?.data?.message || err.message));
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    Request Return
+                                                </button>
+                                            </div>
+                                        )}
+                                        {booking.bookingStatus === 'RETURN_REQUESTED' && (
+                                            <div className="mt-2 small text-muted fst-italic">
+                                                <i className="bi bi-hourglass-split me-1"></i>Waiting for Owner
+                                            </div>
+                                        )}
+
                                         {(() => {
                                             if (booking.bookingStatus === 'CANCELLED' || booking.bookingStatus === 'COMPLETED') return null;
 
@@ -149,6 +295,11 @@ function MyBookings() {
                                             // booking.startingDate is "YYYY-MM-DD"
                                             const [y, m, d] = booking.startingDate.split('-').map(Number);
                                             const startDate = new Date(y, m - 1, d); // Month is 0-indexed
+
+                                            // Fix: cancel button should hide if booked/ongoing/etc? 
+                                            // Prompt doesn't say remove cancel, but usually you can't cancel if trip started.
+                                            // Adding check: if ONGOING, don't show cancel.
+                                            if (booking.bookingStatus === 'ONGOING') return null;
 
                                             const diffTime = startDate - today;
                                             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));

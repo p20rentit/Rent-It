@@ -80,12 +80,74 @@ public class BookingController {
         int userId = 0;
         if (body != null && body.containsKey("userId")) {
             userId = body.get("userId");
+        } else if (userIdHeader != null) {
+            try {
+                userId = Integer.parseInt(userIdHeader);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
         }
 
         // If 0, validation will fail in service.
 
         try {
             Booking booking = bookingService.cancelBooking(bookingId, userId);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{bookingId}/pickup")
+    public ResponseEntity<?> confirmPickup(@PathVariable int bookingId,
+            @org.springframework.web.bind.annotation.RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @RequestBody(required = false) java.util.Map<String, Integer> body) {
+
+        int userId = 0;
+        // Prioritize Header as per prompt requirements for security context
+        if (userIdHeader != null) {
+            try {
+                userId = Integer.parseInt(userIdHeader);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        // Fallback to body if header missing (e.g. testing without gateway)
+        if (userId == 0 && body != null && body.containsKey("userId")) {
+            userId = body.get("userId");
+        }
+
+        try {
+            Booking booking = bookingService.confirmPickup(bookingId, userId);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{bookingId}/return-request")
+    public ResponseEntity<?> requestReturn(@PathVariable int bookingId,
+            @org.springframework.web.bind.annotation.RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @RequestBody(required = false) java.util.Map<String, Integer> body) {
+
+        int userId = 0;
+        if (userIdHeader != null) {
+            try {
+                userId = Integer.parseInt(userIdHeader);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        if (userId == 0 && body != null && body.containsKey("userId") && body.get("userId") != null) {
+            userId = body.get("userId");
+        }
+
+        if (userId == 0) {
+            return ResponseEntity.badRequest().body("User ID is missing in request (Header or Body).");
+        }
+
+        try {
+            Booking booking = bookingService.requestReturn(bookingId, userId);
             return ResponseEntity.ok(booking);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

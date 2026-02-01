@@ -52,6 +52,23 @@ function CustomerDashboard() {
         </div>
       </div>
 
+      <div className="row">
+        <div className="col-md-4 mb-4">
+          <div className="card text-white bg-warning">
+            <div className="card-body">
+              <h5 className="card-title">
+                <i className="bi bi-clock-history me-2"></i>
+                Payment History
+              </h5>
+              <p className="card-text">View your past transactions</p>
+              <Link to="/customer/payments/history" className="btn btn-light">
+                View History
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="row mt-4">
         <div className="col-12">
           <div className="alert alert-info">

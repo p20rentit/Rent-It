@@ -21,5 +21,18 @@ namespace RentIt_owner_services.Controllers
             var bookings = await _bookingService.GetBookingsByOwnerId(ownerId);
             return Ok(bookings);
         }
+        [HttpPost("{bookingId}/complete-return")]
+        public async Task<IActionResult> CompleteReturn(int bookingId, [FromQuery] int ownerId)
+        {
+            try
+            {
+                var booking = await _bookingService.CompleteReturn(bookingId, ownerId);
+                return Ok(booking);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

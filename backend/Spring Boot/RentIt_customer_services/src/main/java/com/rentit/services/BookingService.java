@@ -96,19 +96,24 @@ public class BookingService {
 
         booking.setTotalAmount(totalRentAmount); // Total Cost of Service
         booking.setDepositAmount(depositAmount); // Security Deposit
-        // User pays Deposit at booking time
-        booking.setPaidAmount(depositAmount);
+        // User pays Deposit LATER using Pay button
+        booking.setPaidAmount(BigDecimal.ZERO);
 
         // Default Statuses
-        booking.setBookingStatus(BookingStatus.CONFIRMED);
-        booking.setPaymentStatus(PaymentStatus.SUCCESS); // Assuming immediate deposit payment logic via "paidAmount"
+        booking.setBookingStatus(BookingStatus.PENDING_PAYMENT);
+        booking.setPaymentStatus(PaymentStatus.PENDING); // Payment is pending until user clicks "Pay"
 
         Booking savedBooking = bookingRepository.save(booking);
 
         // 3. Create Booking Record
         BookingRecord record = new BookingRecord();
         record.setBooking(savedBooking);
-        record.setVehicleStatus(VehicleBookingStatus.BOOKED);
+        record.setVehicleStatus(VehicleBookingStatus.BOOKED); // Technically reserved, but keeping BOOKED as per
+                                                              // existing flow or until confirmed
+        // Since it is pending payment, we might want to keep it as BOOKED to block the
+        // slot
+        // Or if there is a PENDING status for vehicle, use that. Assuming BOOKED blocks
+        // it.
         // record.setActionDatetime(LocalDateTime.now()); // DB handles this via
         // insertable=false, check if DB default exists.
         // If not, we might need to set it or rely on DB trigger/default.
@@ -184,5 +189,82 @@ public class BookingService {
         bookingRecordRepository.save(record);
 
         return savedBooking;
+    }
+
+    @Transactional
+    public Booking confirmPickup(int bookingId, int userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // 1. Validate Ownership
+        if (booking.getUser().getUserId() != userId) {
+            throw new RuntimeException("You are not authorized to confirm pickup for this booking.");
+        }
+
+        // 2. Validate Booking Status
+        if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
+            // Idempotency check: if already ONGOING, we can just return it or throw
+            // friendly error
+            if (booking.getBookingStatus() == BookingStatus.ONGOING) {
+                throw new RuntimeException("Pickup already confirmed.");
+            }
+            throw new RuntimeException(
+                    "Booking is not in CONFIRMED state. Current status: " + booking.getBookingStatus());
+        }
+
+        // 3. Validate Time
+        LocalDateTime pickupDateTime = LocalDateTime.of(booking.getStartingDate(),
+                booking.getPickupTime() != null ? booking.getPickupTime() : java.time.LocalTime.MIN);
+
+        if (LocalDateTime.now().isBefore(pickupDateTime)) {
+            throw new RuntimeException("Cannot confirm pickup before the scheduled time: " + pickupDateTime);
+        }
+
+        // 4. Update Statuses
+        booking.setBookingStatus(BookingStatus.ONGOING);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // 5. Update Vehicle Status in History (Record)
+        // We use PICKED to represent the vehicle is now picked up (In Use)
+        BookingRecord record = new BookingRecord();
+        record.setBooking(savedBooking);
+        record.setVehicleStatus(VehicleBookingStatus.PICKED);
+        bookingRecordRepository.save(record);
+
+        return savedBooking;
+    }
+
+    @Transactional
+    public Booking requestReturn(int bookingId, int userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found: " + bookingId));
+
+        // 1. Validate Ownership
+        if (booking.getUser() == null) {
+            throw new RuntimeException("Data Error: Booking has no user assigned.");
+        }
+        if (booking.getUser().getUserId() != userId) {
+            throw new RuntimeException("Auth Failed: Booking belongs to User " + booking.getUser().getUserId()
+                    + ", but request came from User " + userId);
+        }
+
+        // 2. Validate Booking Status
+        if (booking.getBookingStatus() == null) {
+            throw new RuntimeException("Data Error: Booking status is null.");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.ONGOING) {
+            if (booking.getBookingStatus() == BookingStatus.RETURN_REQUESTED) {
+                // Idempotent success (effectively) or just return the booking
+                // But for now, let's allow it to pass through or return existing
+                return booking;
+            }
+            throw new RuntimeException(
+                    "Invalid Status: Cannot request return when status is " + booking.getBookingStatus());
+        }
+
+        // 3. Update Status
+        booking.setBookingStatus(BookingStatus.RETURN_REQUESTED);
+        return bookingRepository.save(booking);
     }
 }

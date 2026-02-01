@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.rentit.entities.BookingStatus;
+import com.rentit.entities.PaymentStatus;
+
 @Entity
 @Table(name = "booking")
 public class Booking {

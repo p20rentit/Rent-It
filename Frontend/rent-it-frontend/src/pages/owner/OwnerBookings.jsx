@@ -138,15 +138,63 @@ function OwnerBookings() {
                                     <td className="text-center">
                                         <div className="mb-2">
                                             <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' || booking.bookingStatus === 'COMPLETED' ? 'bg-success' :
-                                                    booking.bookingStatus === 'PENDING' || booking.bookingStatus === 'ONGOING' ? 'bg-warning text-dark' :
+                                                booking.bookingStatus === 'PENDING' || booking.bookingStatus === 'ONGOING' ? 'bg-warning text-dark' :
+                                                    booking.bookingStatus === 'RETURN_REQUESTED' ? 'bg-info text-dark' :
                                                         'bg-danger'
                                                 } px-3`}>
-                                                {booking.bookingStatus}
+                                                {booking.bookingStatus.replace('_', ' ')}
                                             </span>
                                         </div>
                                         <div className="small text-muted" style={{ fontSize: '0.7rem' }}>
                                             Payment: {booking.paymentStatus}
                                         </div>
+
+                                        {booking.bookingStatus === 'RETURN_REQUESTED' && (
+                                            <div className="mt-2">
+                                                <button
+                                                    className="btn btn-success btn-sm py-0"
+                                                    style={{ fontSize: '0.75rem' }}
+                                                    onClick={async () => {
+                                                        if (window.confirm(`Complete return for Booking #${booking.bookingId}? This will calculate final charges.`)) {
+                                                            try {
+                                                                const res = await OwnerBookingService.completeReturn(booking.bookingId, userId); // using userId as ownerId
+                                                                console.log("Return completed:", res);
+                                                                // Calculate settlement info for alert
+                                                                const rent = res.totalAmount;
+                                                                const payments = res.payments || [];
+                                                                const settlement = payments.find(p => p.paymentType === 'REFUND' || p.paymentType === 'FINAL_DUE');
+
+                                                                let msg = "Return Completed Successfully!\n";
+                                                                msg += `Final Rent: ₹${rent}\n`;
+
+                                                                if (settlement) {
+                                                                    if (settlement.paymentType === 'REFUND') {
+                                                                        msg += `Refund Processed: ₹${settlement.paymentAmount}`;
+                                                                    } else if (settlement.paymentType === 'FINAL_DUE') {
+                                                                        msg += `Final Due Amount: ₹${settlement.paymentAmount}`;
+                                                                    }
+                                                                } else {
+                                                                    msg += "All payments settled. No further action required.";
+                                                                }
+
+                                                                alert(msg);
+
+                                                                // Update both lists to reflect COMPLETED status immediately
+                                                                const updateBooking = (list) => list.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'COMPLETED', paymentStatus: res.paymentStatus, vehicle: { ...b.vehicle, status: 'AVAILABLE' } } : b);
+
+                                                                setFilteredBookings(prev => updateBooking(prev));
+                                                                setBookings(prev => updateBooking(prev));
+                                                            } catch (err) {
+                                                                console.error("Complete return failed", err);
+                                                                alert("Failed to complete return: " + (err.response?.data || err.message));
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    Complete Return
+                                                </button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
