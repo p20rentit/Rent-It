@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { isEmail, isStrongPassword, isRequired } from "../utils/validators";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -25,6 +26,16 @@ function ForgotPassword() {
     setError("");
     setSuccess("");
 
+    if (!isRequired(email)) {
+      setError("Please enter your registered email.");
+      return;
+    }
+
+    if (!isEmail(email)) {
+      setError("Please enter a valid email address (example: name@example.com).");
+      return;
+    }
+
     try {
       const res = await api.post("/auth/forgot-password", { email });
       setQuestions(res.data);
@@ -39,15 +50,8 @@ function ForgotPassword() {
     setError("");
     setSuccess("");
 
-    console.log("Verify button clicked");
-    console.log("Sending:", {
-      email,
-      questionId,
-      answer,
-    });
-
     if (!questionId || !answer) {
-      setError("Please select question and enter answer");
+      setError("Please select a security question and enter your answer.");
       return;
     }
 
@@ -58,14 +62,12 @@ function ForgotPassword() {
         answer: answer.trim().toLowerCase(),
       });
 
-      console.log("VERIFY RESPONSE:", res.data);
-
       if (res.status === 200) {
         setStep("RESET");
       }
     } catch (err) {
       if (err.response?.status === 400) {
-        setError("Incorrect security answer");
+        setError("Incorrect security answer. Please double-check and try again.");
       } else {
         setError("Server error. Please try again.");
       }
@@ -77,13 +79,18 @@ function ForgotPassword() {
     setError("");
     setSuccess("");
 
-    if (!newPassword || !confirmPassword) {
-      setError("Please enter password");
+    if (!isRequired(newPassword) || !isRequired(confirmPassword)) {
+      setError("Please enter and confirm your new password.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match. Please re-enter.");
+      return;
+    }
+
+    if (!isStrongPassword(newPassword)) {
+      setError("Password must be 8+ characters and include uppercase, lowercase, number and a special character.");
       return;
     }
 
@@ -174,6 +181,9 @@ function ForgotPassword() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            {!isStrongPassword(newPassword) && newPassword && (
+              <small className="text-danger">Password must be 8+ chars with uppercase, lowercase, number and special character.</small>
+            )}
           </div>
 
           <div className="mb-3">
@@ -184,6 +194,9 @@ function ForgotPassword() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            {confirmPassword && newPassword !== confirmPassword && (
+              <small className="text-danger">Passwords do not match.</small>
+            )}
           </div>
 
           <button

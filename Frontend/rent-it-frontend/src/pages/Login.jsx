@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isEmail, isRequired } from "../utils/validators";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -13,6 +14,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -80,9 +83,15 @@ function Login() {
               type="email"
               className="form-control"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (!isRequired(e.target.value)) setEmailError("Email is required.");
+                else if (!isEmail(e.target.value)) setEmailError("Please enter a valid email (e.g., name@example.com).");
+                else setEmailError("");
+              }}
               required
             />
+            {emailError && <small className="text-danger">{emailError}</small>}
           </div>
 
           {/* Password */}
@@ -93,9 +102,14 @@ function Login() {
                 type={showPassword ? "text" : "password"}
                 className="form-control"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (!isRequired(e.target.value)) setPasswordError("Password is required.");
+                  else setPasswordError("");
+                }}
                 required
               />
+              {passwordError && <small className="text-danger">{passwordError}</small>}
               <button
                 type="button"
                 className="btn btn-outline-secondary"
@@ -115,8 +129,8 @@ function Login() {
             
           </div>
           {/* Submit */}
-          <button type="submit" className="btn btn-dark w-100">
-            Login
+          <button type="submit" className="btn btn-dark w-100" disabled={!!emailError || !!passwordError || !email || !password}>
+            {(!email || !password || emailError || passwordError) ? "Enter valid credentials" : "Login"}
           </button>
         </form>
       </div>

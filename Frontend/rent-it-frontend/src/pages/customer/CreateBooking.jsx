@@ -5,6 +5,7 @@ import api from "../../api/axios";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { datesBetween } from "../../utils/validators";
 
 // Helper to format date as yyyy-mm-dd (DateOnly compatible) for API
 // Helper to format date as yyyy-mm-dd (DateOnly compatible) for API using Local Time
@@ -91,12 +92,32 @@ function CreateBooking() {
         setError("");
 
         if (!startDate || !endDate) {
-            setError("Please select both dates.");
+            setError("Please select both pickup and return dates.");
+            return;
+        }
+
+        if (startDate > endDate) {
+            setError("Pickup date must be before return date.");
+            return;
+        }
+
+        // Client-side overlap check using bookedDates
+        const selectedDates = datesBetween(startDate, endDate).map(d => d.toDateString());
+        const overlap = bookedDates.some(bd => selectedDates.includes(bd.toDateString()));
+        if (overlap) {
+            setError("Selected dates overlap with existing bookings. Please choose different dates.");
             return;
         }
 
         if (!userId) {
             setError("You must be logged in to create a booking.");
+            return;
+        }
+
+        // Prevent booking if vehicle is not available (client-side defensive check)
+        const status = vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName;
+        if (status && status.toUpperCase() !== "AVAILABLE") {
+            setError("This vehicle is currently not available for booking.");
             return;
         }
 
@@ -228,6 +249,18 @@ function CreateBooking() {
                                                 if (endDate && date > endDate) {
                                                     setError("Pickup date cannot be after return date.");
                                                     setEndDate(null); // Reset invalid end date
+                                                    return;
+                                                }
+
+                                                // If single date overlaps an existing booked date
+                                                if (bookedDates.some(bd => bd.toDateString() === date.toDateString())) {
+                                                    setError("Selected pickup date overlaps with existing bookings. Pick another date.");
+                                                } else if (endDate) {
+                                                    // If range overlaps any booked date
+                                                    const selected = datesBetween(date, endDate).map(d => d.toDateString());
+                                                    const overlap = bookedDates.some(bd => selected.includes(bd.toDateString()));
+                                                    if (overlap) setError("Selected date range overlaps existing bookings.");
+                                                    else setError("");
                                                 } else {
                                                     setError("");
                                                 }
@@ -258,6 +291,21 @@ function CreateBooking() {
                                                 setEndDate(date);
                                                 if (startDate && date < startDate) {
                                                     setError("Return date cannot be before pickup date.");
+                                                    return;
+                                                }
+
+                                                // If single date overlaps existing booked date
+                                                if (bookedDates.some(bd => bd.toDateString() === date.toDateString())) {
+                                                    setError("Selected return date overlaps with existing bookings. Pick another date.");
+                                                    return;
+                                                }
+
+                                                // If range overlaps any booked date
+                                                if (startDate) {
+                                                    const selected = datesBetween(startDate, date).map(d => d.toDateString());
+                                                    const overlap = bookedDates.some(bd => selected.includes(bd.toDateString()));
+                                                    if (overlap) setError("Selected date range overlaps existing bookings.");
+                                                    else setError("");
                                                 } else {
                                                     setError("");
                                                 }
@@ -310,8 +358,13 @@ function CreateBooking() {
                                 </div>
 
                                 <div className="d-grid gap-2">
-                                    <button type="submit" className="btn btn-success btn-lg shadow-sm">
-                                        <i className="bi bi-shield-lock-fill me-2"></i>Pay Deposit & Confirm Booking
+                                    <button
+                                        type="submit"
+                                        className="btn btn-success btn-lg shadow-sm"
+                                        disabled={!startDate || !endDate || !!error || (vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName)?.toUpperCase() !== "AVAILABLE"}
+                                    >
+                                        <i className="bi bi-shield-lock-fill me-2"></i>
+                                        {(vehicle?.status || vehicle?.vehicleStatus || vehicle?.statusName)?.toUpperCase() !== "AVAILABLE" ? "Vehicle not available" : "Pay Deposit & Confirm Booking"}
                                     </button>
                                     <button
                                         type="button"

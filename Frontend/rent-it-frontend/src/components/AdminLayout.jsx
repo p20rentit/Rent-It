@@ -3,12 +3,15 @@ import { useSelector } from "react-redux";
 
 function AdminLayout() {
     const location = useLocation();
-    const { userId } = useSelector((state) => state.auth);
+    const { userId, isAuthenticated } = useSelector((state) => state.auth);
 
     // Helper function to check if link is active
     const isActive = (path) => {
         return location.pathname === path ? "active" : "";
     };
+
+    // Check token presence in localStorage for an extra layer of verification
+    const tokenPresent = !!localStorage.getItem("token");
 
     return (
         <div className="container-fluid">
@@ -64,6 +67,15 @@ function AdminLayout() {
                                     All Vehicles
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link
+                                    className={`nav-link text-white ${isActive("/admin/vehicles/pending")}`}
+                                    to="/admin/vehicles/pending"
+                                >
+                                    <i className="bi bi-clock-history me-2"></i>
+                                    Approvals
+                                </Link>
+                            </li>
                         </ul>
 
                         <hr className="text-white" />
@@ -79,6 +91,15 @@ function AdminLayout() {
                                     Dashboard
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link
+                                    className={`nav-link text-white ${isActive("/admin/analytics")}`}
+                                    to="/admin/analytics"
+                                >
+                                    <i className="bi bi-bar-chart-line me-2"></i>
+                                    Analytics
+                                </Link>
+                            </li>
                         </ul>
 
                         <hr className="text-white" />
@@ -89,6 +110,13 @@ function AdminLayout() {
                             <p className="mb-1 mt-2">
                                 <small className="text-white">
                                     <strong>Admin ID:</strong> {userId}
+                                </small>
+                            </p>
+
+                            {/* Token status badge */}
+                            <p className="mb-0 mt-1">
+                                <small className={`badge ${isAuthenticated && tokenPresent ? 'bg-success' : 'bg-danger'}`}>
+                                    {isAuthenticated && tokenPresent ? '🔒 Token present' : '🔓 No token'}
                                 </small>
                             </p>
                         </div>
