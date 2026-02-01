@@ -31,6 +31,17 @@ api.interceptors.request.use(
   },
   (error) => {
     console.error("❌ API Request Error:", error);
+    if (error.response) {
+      if (error.response.status === 401) {
+        console.error("Unauthorized! Redirecting to login...");
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        window.location.href = "/";
+      } else if (error.response.status === 403) {
+        console.error("Forbidden! Access denied.");
+        alert("Access Denied: You do not have permission to access this resource.");
+      }
+    }
     return Promise.reject(error);
   }
 );

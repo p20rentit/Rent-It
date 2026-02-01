@@ -1,6 +1,7 @@
 package com.rentit.config;
 
 import java.util.Arrays;
+import com.rentit.filter.AuthenticationFilter;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -14,10 +15,10 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class RouterConfig {
 
         @Bean
-        public RouteLocator createRoutes(RouteLocatorBuilder builder) {
+        public RouteLocator createRoutes(RouteLocatorBuilder builder, AuthenticationFilter authFilter) {
                 return builder.routes()
 
-                                // 🔐 Auth Service
+                                // 🔐 Auth Service (Public)
                                 .route("auth-service", r -> r
                                                 .path("/auth/**")
                                                 .uri("http://localhost:9090"))
@@ -25,16 +26,22 @@ public class RouterConfig {
                                 // 👨‍💼 Admin Service (.NET)
                                 .route("admin-service", r -> r
                                                 .path("/admin/**")
+                                                .filters(f -> f.filter(
+                                                                authFilter.apply(config -> config.setRole("ADMIN"))))
                                                 .uri("http://localhost:9091"))
 
                                 // 🚗 Owner Service (.NET)
                                 .route("owner-service", r -> r
                                                 .path("/owner/**")
+                                                .filters(f -> f.filter(
+                                                                authFilter.apply(config -> config.setRole("OWNER"))))
                                                 .uri("http://localhost:9092"))
 
                                 // 👤 Customer Service (Spring Boot)
                                 .route("customer-service", r -> r
                                                 .path("/customer/**")
+                                                .filters(f -> f.filter(
+                                                                authFilter.apply(config -> config.setRole("CUSTOMER"))))
                                                 .uri("http://localhost:9093"))
                                 .build();
         }
