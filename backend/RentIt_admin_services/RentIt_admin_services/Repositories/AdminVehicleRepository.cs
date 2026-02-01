@@ -25,6 +25,20 @@ namespace RentIt_admin_services.Repositories
                 .ToListAsync();
         }
 
+        // Get vehicles that are pending approval (Status == 'PENDING')
+        public async Task<List<Vehicle>> GetPendingVehicles()
+        {
+            return await _context.Vehicles
+                .Where(v => v.Status != null && v.Status.ToUpper() == "PENDING")
+                .Include(v => v.Owner)
+                .Include(v => v.VehicleType)
+                .Include(v => v.FuelType)
+                .Include(v => v.Model)
+                    .ThenInclude(m => m.Brand)
+                .Include(v => v.VehicleImages)
+                .ToListAsync();
+        }
+
         public async Task<Vehicle?> GetVehicleById(int vehicleId)
         {
             return await _context.Vehicles

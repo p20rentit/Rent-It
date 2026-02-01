@@ -3,6 +3,9 @@ import { getCities, getAreasByCity } from "../services/LocationService";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
+// Validation helpers
+import { isRequired, isEmail, isStrongPassword, aadharIsValid, panIsValid, phoneIsValid } from "../utils/validators";
+
 
 function Register() {
 
@@ -55,65 +58,77 @@ function Register() {
 
     switch(name) {
       case "roleId":
-        if (!value) msg = "Role is required";
+        if (!isRequired(value)) msg = "Please select a role (Customer or Owner).";
         break;
 
       case "fname":
-        if (!/^[A-Z][a-z]{2,50}$/.test(value)) msg = "Invalid first name";
+        if (!isRequired(value)) msg = "First name is required.";
+        else if (!/^[A-Z][a-z]{2,50}$/.test(value)) msg = "First name should start with a capital letter and be 3-50 letters.";
         break;
 
       case "mname":
-        if (value && !/^^[A-Z][a-z]{2,50}$/.test(value)) msg = "Invalid middle name";
+        if (value && !/^[A-Z][a-z]{2,50}$/.test(value)) msg = "Middle name should start with a capital letter and be 3-50 letters.";
         break;
 
       case "lname":
-        if (!/^[A-Z][a-z]{2,50}$/.test(value)) msg = "Invalid last name";
+        if (!isRequired(value)) msg = "Last name is required.";
+        else if (!/^[A-Z][a-z]{2,50}$/.test(value)) msg = "Last name should start with a capital letter and be 3-50 letters.";
         break;
 
       case "phone":
-        if (!/^[7-9]\d{9}$/.test(value)) msg = "Phone number must be 10 digits";
+        if (!isRequired(value)) msg = "Phone number is required.";
+        else if (!phoneIsValid(value)) msg = "Phone must be a 10-digit Indian mobile number starting with 7/8/9.";
         break;
 
       case "email":
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) msg = "Invalid email format";
+        if (!isRequired(value)) msg = "Email is required.";
+        else if (!isEmail(value)) msg = "Please enter a valid email address (example: name@example.com).";
         break;
 
       case "password":
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(value))
-          msg = "Weak password (A-Z, a-z, 0-9, symbol, min 8)";
+        if (!isRequired(value)) msg = "Password is required.";
+        else if (!isStrongPassword(value)) msg = "Password must be at least 8 characters and include uppercase, lowercase, a number and a special character (e.g., A@1aabcd).";
         break;
 
       case "confirmPassword":
-        if (formData.password && value !== formData.password)
-          msg = "Passwords do not match";
+        if (!isRequired(value)) msg = "Please confirm your password.";
+        else if (formData.password && value !== formData.password) msg = "Passwords do not match. Make sure both entries are identical.";
         break;
 
-
       case "adharNo":
-        if (!/^\d{12}$/.test(value)) msg = "Aadhar must be 12 digits";
+        if (!isRequired(value)) msg = "Aadhar number is required.";
+        else if (!aadharIsValid(value)) msg = "Aadhar must be exactly 12 digits.";
         break;
 
       case "panNo":
-        if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) msg = "Invalid PAN format";
+        if (value && !panIsValid(value)) msg = "PAN format invalid. Expected format: ABCDE1234F.";
         break;
 
       case "drivingLicenceNo":
-        if (value && !/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(value))
-          msg = "Invalid license format";
+        if (!isRequired(value)) msg = "Driving licence number is required.";
+        else if (value && value.length < 6) msg = "Driving licence looks too short. Check the number and try again.";
         break;
 
       case "address":
-        if (!value || value.length < 5) msg = "Address must be at least 5 characters";
+        if (!isRequired(value)) msg = "Address is required and should be at least 5 characters.";
+        else if (value.length < 5) msg = "Address should be at least 5 characters.";
         break;
 
       case "questionId":
-        if (!value) msg = "Security question required";
+        if (!isRequired(value)) msg = "Please select a security question.";
         break;
 
       case "answer":
-        if (!value) msg = "Security answer required";
+        if (!isRequired(value)) msg = "Security answer is required.";
         break;
 
+      case "cityId":
+        if (!isRequired(value)) msg = "Please select a city.";
+        break;
+
+      case "areaId":
+        if (!isRequired(value)) msg = "Please select an area.";
+        break;
 
     }
 
@@ -140,9 +155,21 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔴 block submit if any validation error exists
+    // Validate all required fields before submit (in case user hasn't touched some)
+    const required = [
+      "roleId","fname","lname","phone","email","password","confirmPassword",
+      "drivingLicenceNo","adharNo","address","questionId","answer","cityId","areaId"
+    ];
+
+    required.forEach(f => validateField(f, formData[f]));
+
+    // If any validation error exists, block submit
     const hasErrors = Object.values(errors).some(msg => msg);
-    if (hasErrors) return;
+    const allFilled = required.every(f => isRequired(formData[f]));
+    if (hasErrors || !allFilled) {
+      setErrors(prev => ({ ...prev, form: "Please fix the highlighted errors before submitting." }));
+      return;
+    }
 
     const { confirmPassword, ...rest } = formData;
     const payload = {
@@ -158,6 +185,15 @@ function Register() {
       console.error(err);
     }
   };
+
+  // Compute form validity for disabling submit button
+  const requiredFields = [
+    "roleId","fname","lname","phone","email","password","confirmPassword",
+    "drivingLicenceNo","adharNo","address","questionId","answer","cityId","areaId"
+  ];
+  const allFilled = requiredFields.every(f => isRequired(formData[f]));
+  const noErrors = Object.values(errors).every((v) => !v);
+  const isFormValid = allFilled && noErrors;
 
 
   return (
@@ -404,7 +440,10 @@ function Register() {
             {errors.answer && <small className="text-danger">{errors.answer}</small>}
           </div>
 
-          <button className="btn btn-primary w-100">Register</button>
+          {errors.form && <div className="alert alert-danger">{errors.form}</div>}
+          <button className="btn btn-primary w-100" disabled={!isFormValid} aria-disabled={!isFormValid}>
+            {isFormValid ? "Register" : "Complete required fields"}
+          </button>
         </form>
       </div>
     </div>

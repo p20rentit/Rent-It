@@ -4,6 +4,7 @@ using RentIt_admin_services.Servises.Interfaces;
 
 namespace RentIt_admin_services.Controllers
 {
+    [ApiExplorerSettings(GroupName = "admin")]
     [ApiController]
     [Route("admin/vehicles")]
     public class AdminVehicleController : Controller
@@ -59,6 +60,45 @@ namespace RentIt_admin_services.Controllers
                     vehicleId,
                     status = "ACTIVE"
                 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // GET: api/admin/vehicles/pending
+        // Get pending vehicle listings for approval
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingVehicles()
+        {
+            var pending = await _adminVehicleService.GetPendingVehicles();
+            return Ok(pending);
+        }
+
+        // PUT: api/admin/vehicles/{vehicleId}/approve
+        [HttpPut("{vehicleId}/approve")]
+        public async Task<IActionResult> ApproveVehicle(int vehicleId)
+        {
+            try
+            {
+                await _adminVehicleService.ApproveVehicle(vehicleId);
+                return Ok(new { message = "Vehicle approved", vehicleId, status = "ACTIVE" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // PUT: api/admin/vehicles/{vehicleId}/reject
+        [HttpPut("{vehicleId}/reject")]
+        public async Task<IActionResult> RejectVehicle(int vehicleId, [FromBody] string? reason)
+        {
+            try
+            {
+                await _adminVehicleService.RejectVehicle(vehicleId, reason);
+                return Ok(new { message = "Vehicle rejected", vehicleId, status = "REJECTED" });
             }
             catch (Exception ex)
             {

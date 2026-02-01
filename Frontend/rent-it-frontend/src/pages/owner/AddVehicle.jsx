@@ -4,6 +4,9 @@ import { useSelector } from "react-redux";
 import api from "../../api/axios";
 import { addVehicle, uploadMultipleVehicleImages } from "../../services/VehicleService";
 
+// Validation helpers
+import { isRequired, vehicleNumberIsValid, rcNumberIsValid, fileIsImageType, fileSizeUnder } from "../../utils/validators";
+
 function AddVehicle() {
     const navigate = useNavigate();
     const { userId } = useSelector((state) => state.auth);
@@ -28,6 +31,11 @@ function AddVehicle() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    // Inline validation errors
+    const [errors, setErrors] = useState({});
+
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 
     useEffect(() => {
         loadDropdownData();
@@ -68,6 +76,9 @@ function AddVehicle() {
     const handleBrandChange = async (e) => {
         const brandId = e.target.value;
         console.log("🏷️ Brand changed to:", brandId);
+        // store selected brand in formData for validation and submission
+        setFormData(prev => ({ ...prev, brandId, modelId: "" }));
+        setErrors(prev => ({ ...prev, brandId: brandId ? "" : "Please select a brand." }));
         if (brandId) {
             try {
                 console.log(`📞 Calling: GET /models/brand/${brandId}`);
@@ -85,19 +96,72 @@ function AddVehicle() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // live validation
+        if (name === "vehicleNumber") {
+            if (!isRequired(value)) setErrors(prev => ({ ...prev, vehicleNumber: "Vehicle number is required." }));
+            else if (!vehicleNumberIsValid(value)) setErrors(prev => ({ ...prev, vehicleNumber: "Invalid vehicle number format. Example: MH12AB1234." }));
+            else setErrors(prev => ({ ...prev, vehicleNumber: "" }));
+        }
+
+        if (name === "vehicleRcNumber") {
+            if (!isRequired(value)) setErrors(prev => ({ ...prev, vehicleRcNumber: "RC number is required." }));
+            else if (!rcNumberIsValid(value)) setErrors(prev => ({ ...prev, vehicleRcNumber: "Invalid RC format (6-12 alphanumeric characters)." }));
+            else setErrors(prev => ({ ...prev, vehicleRcNumber: "" }));
+        }
+
+        if (name === "modelId" || name === "fuelTypeId" || name === "vehicleTypeId") {
+            setErrors(prev => ({ ...prev, [name]: isRequired(value) ? "" : "This field is required." }));
+        }
+
+        if (name === "description") {
+            setErrors(prev => ({ ...prev, description: isRequired(value) ? "" : "Description is required." }));
+        }
     };
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        setImages(files);
+        // Validate image types and sizes
+        const invalid = [];
+        const accepted = [];
+        files.forEach(f => {
+            if (!fileIsImageType(f)) invalid.push(`${f.name}: invalid file type`);
+            else if (!fileSizeUnder(f, MAX_IMAGE_SIZE)) invalid.push(`${f.name}: file too large (max 5MB)`);
+            else accepted.push(f);
+        });
+
+        if (invalid.length > 0) {
+            setErrors(prev => ({ ...prev, images: invalid.join("; ") }));
+        } else {
+            setErrors(prev => ({ ...prev, images: "" }));
+        }
+
+        setImages(accepted);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
-        setLoading(true);
 
+        // Run final validations
+        const required = ["vehicleTypeId", "brandId", "modelId", "fuelTypeId", "vehicleNumber", "vehicleRcNumber", "description"];
+        let hasErr = false;
+        required.forEach((f) => {
+            if (!isRequired(formData[f])) {
+                setErrors(prev => ({ ...prev, [f]: "This field is required." }));
+                hasErr = true;
+            }
+        });
+
+        if (errors.vehicleNumber || errors.vehicleRcNumber || errors.images) hasErr = true;
+
+        if (hasErr) {
+            setError("Please fix validation errors before submitting the form.");
+            return;
+        }
+
+        setLoading(true);
         try {
             // Step 1: Add vehicle (uses ownerApi)
             // Backend returns { message, vehicleId }
@@ -173,6 +237,7 @@ function AddVehicle() {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.brandId && <small className="text-danger">{errors.brandId}</small>}
                             </div>
                         </div>
 
@@ -194,6 +259,7 @@ function AddVehicle() {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.modelId && <small className="text-danger">{errors.modelId}</small>}
                             </div>
 
                             <div className="col-md-6 mb-3">
@@ -212,6 +278,7 @@ function AddVehicle() {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.fuelTypeId && <small className="text-danger">{errors.fuelTypeId}</small>}
                             </div>
                         </div>
 
@@ -227,6 +294,7 @@ function AddVehicle() {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.vehicleNumber && <small className="text-danger">{errors.vehicleNumber}</small>}
                             </div>
 
                             <div className="col-md-6 mb-3">
@@ -240,6 +308,7 @@ function AddVehicle() {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.vehicleRcNumber && <small className="text-danger">{errors.vehicleRcNumber}</small>}
                             </div>
                         </div>
 
@@ -285,6 +354,7 @@ function AddVehicle() {
                                 value={formData.description}
                                 onChange={handleChange}
                             ></textarea>
+                            {errors.description && <small className="text-danger">{errors.description}</small>}
                         </div>
 
                         <hr />
@@ -300,6 +370,7 @@ function AddVehicle() {
                                 multiple
                                 onChange={handleImageChange}
                             />
+                            {errors.images && <small className="text-danger">{errors.images}</small>}
                             <small className="text-muted">
                                 You can upload multiple images. First image will be primary by default.
                             </small>
@@ -348,8 +419,8 @@ function AddVehicle() {
                             >
                                 Cancel
                             </button>
-                            <button type="submit" className="btn btn-primary" disabled={loading}>
-                                {loading ? "Adding Vehicle..." : "Add Vehicle"}
+                            <button type="submit" className="btn btn-primary" disabled={loading || Object.values(errors).some(e => e) || !formData.vehicleTypeId || !formData.brandId || !formData.modelId || !formData.fuelTypeId}>
+                                {loading ? "Adding Vehicle..." : (Object.values(errors).some(e => e) ? "Fix validation errors" : "Add Vehicle")}
                             </button>
                         </div>
                     </form>

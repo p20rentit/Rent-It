@@ -4,6 +4,7 @@ using RentIt_admin_services.Servises.Interfaces;
 
 namespace RentIt_admin_services.Controllers
 {
+    [ApiExplorerSettings(GroupName = "admin")]
     [ApiController]
     [Route("admin/users")]
     public class AdminUserController : Controller

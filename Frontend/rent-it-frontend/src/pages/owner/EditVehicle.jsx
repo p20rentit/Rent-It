@@ -10,6 +10,9 @@ import {
     setPrimaryImage
 } from "../../services/VehicleService";
 
+// Validation helpers
+import { isRequired, fileIsImageType, fileSizeUnder } from "../../utils/validators";
+
 function EditVehicle() {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -38,6 +41,8 @@ function EditVehicle() {
     const [images, setImages] = useState([]); // Existing images from backend
     const [newImages, setNewImages] = useState([]); // New images to upload
     const [primaryImageIndex, setPrimaryImageIndex] = useState(0); // For new images
+    const [errors, setErrors] = useState({});
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
     useEffect(() => {
         loadDropdownData();
@@ -122,7 +127,18 @@ function EditVehicle() {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        setNewImages(files);
+        const invalid = [];
+        const accepted = [];
+        files.forEach(f => {
+            if (!fileIsImageType(f)) invalid.push(`${f.name}: invalid file type`);
+            else if (!fileSizeUnder(f, MAX_IMAGE_SIZE)) invalid.push(`${f.name}: file too large (max 5MB)`);
+            else accepted.push(f);
+        });
+
+        if (invalid.length > 0) setErrors(prev => ({ ...prev, newImages: invalid.join('; ') }));
+        else setErrors(prev => ({ ...prev, newImages: '' }));
+
+        setNewImages(accepted);
     };
 
     const handleDeleteImage = async (imageId) => {
@@ -157,6 +173,20 @@ function EditVehicle() {
         e.preventDefault();
         setError("");
         setSuccess("");
+
+        // Validate description
+        if (!isRequired(formData.description)) {
+            setErrors(prev => ({ ...prev, description: 'Description is required.' }));
+            setError('Please fix validation errors before saving.');
+            return;
+        }
+
+        // Validate new images if present
+        if (errors.newImages) {
+            setError('Please remove or replace invalid image files.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -379,8 +409,12 @@ function EditVehicle() {
                                 name="description"
                                 placeholder="Enter vehicle description"
                                 value={formData.description}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    setErrors(prev => ({ ...prev, description: isRequired(e.target.value) ? '' : 'Description is required.' }));
+                                }}
                             ></textarea>
+                            {errors.description && <small className="text-danger">{errors.description}</small>}
                         </div>
 
                         <hr />
@@ -440,6 +474,7 @@ function EditVehicle() {
                                 multiple
                                 onChange={handleImageChange}
                             />
+                            {errors.newImages && <small className="text-danger">{errors.newImages}</small>}
                             <small className="text-muted">
                                 Upload additional images. You can select multiple files.
                             </small>

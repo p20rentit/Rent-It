@@ -1,4 +1,74 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import api from "../api/axios";
+
+function DashboardStats() {
+  const [dash, setDash] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/admin/analytics/dashboard");
+        setDash(res.data);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load dashboard stats.");
+      } finally {
+        setLoading(false);
+      }
+    }; 
+    fetch();
+  }, []);
+
+  if (loading) return (
+    <div className="col-12 text-center py-4">Loading stats...</div>
+  );
+
+  if (error) return (
+    <div className="col-12 alert alert-danger">{error}</div>
+  );
+
+  return (
+    <div className="col-12">
+      <div className="row g-3 mb-4">
+        <div className="col-md-2">
+          <div className="card p-3 text-center">
+            <div className="h6">Users</div>
+            <div className="display-6">{dash?.totalUsers ?? 0}</div>
+          </div>
+        </div>
+        <div className="col-md-2">
+          <div className="card p-3 text-center">
+            <div className="h6">Vehicles</div>
+            <div className="display-6">{dash?.totalVehicles ?? 0}</div>
+          </div>
+        </div>
+        <div className="col-md-2">
+          <div className="card p-3 text-center">
+            <div className="h6">Active</div>
+            <div className="display-6">{dash?.activeBookings ?? 0}</div>
+          </div>
+        </div>
+        <div className="col-md-2">
+          <div className="card p-3 text-center">
+            <div className="h6">Completed</div>
+            <div className="display-6">{dash?.completedBookings ?? 0}</div>
+          </div>
+        </div>
+        <div className="col-md-2">
+          <div className="card p-3 text-center">
+            <div className="h6">Cancelled</div>
+            <div className="display-6">{dash?.cancelledBookings ?? 0}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AdminDashboard() {
   return (
@@ -55,7 +125,10 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* Dashboard Stats */}
+        <DashboardStats />
+
+        {/* Quick Info */}
         <div className="col-12">
           <div className="card shadow-sm bg-light">
             <div className="card-body">

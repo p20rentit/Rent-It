@@ -17,11 +17,16 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token added");
+      console.log("� Token added");
     } else {
       console.log("⚠️ No token found");
     }
-
+    // Provide a clear line that indicates whether Authorization header was attached (no token value printed)
+    if (config.headers && config.headers.Authorization) {
+      console.log("🔒 Authorization header attached");
+    } else {
+      console.log("🔓 No Authorization header set");
+    }
     return config;
   },
   (error) => {

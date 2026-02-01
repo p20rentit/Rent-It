@@ -24,6 +24,8 @@ import OwnerLayout from "../components/OwnerLayout";
 import CustomersList from "../pages/admin/CustomersList";
 import OwnersList from "../pages/admin/OwnersList";
 import AllVehicles from "../pages/admin/AllVehicles";
+import Approvals from "../pages/admin/Approvals";
+import Analytics from "../pages/admin/Analytics";
 import AdminLayout from "../components/AdminLayout";
 
 // Customer pages
@@ -83,6 +85,8 @@ function AppRoutes() {
           <Route path="users/customers" element={<CustomersList />} />
           <Route path="users/owners" element={<OwnersList />} />
           <Route path="vehicles" element={<AllVehicles />} />
+          <Route path="vehicles/pending" element={<Approvals />} />
+          <Route path="analytics" element={<Analytics />} />
         </Route>
 
         {/* OWNER - All routes use OwnerLayout with sidebar */}
