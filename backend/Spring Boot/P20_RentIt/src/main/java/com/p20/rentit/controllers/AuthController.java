@@ -43,6 +43,9 @@ public class AuthController {
 	@org.springframework.beans.factory.annotation.Value("${owner.service.url}")
 	private String ownerServiceUrl;
 
+	@org.springframework.beans.factory.annotation.Value("${customer.service.url}")
+	private String customerServiceUrl;
+
 	@Autowired
 	private JwtUtil jwtUtil;
 
@@ -56,24 +59,63 @@ public class AuthController {
 		try {
 			User user = authService.login(request.getEmail(), request.getPassword());
 
-			// Create Owner Validation Check
-			if (user.getRole().getRoleName().equals("OWNER")) {
-				try {
+			// Create Owner/Customer Validation Check
+			// Check Role and Verify Approval Status
+			String roleName = user.getRole().getRoleName();
+			if (roleName != null) {
+				roleName = roleName.trim().toUpperCase();
+			} else {
+				roleName = ""; // Prevention of null pointer
+			}
+
+			System.out.println("DEBUG: User Role: " + roleName);
+
+			String approvalStatus = null;
+
+			try {
+				if ("OWNER".equals(roleName)) {
 					String url = ownerServiceUrl + "/owner/profile/" + user.getUserId();
+					System.out.println("DEBUG: Calling Owner Service: " + url);
 					com.p20.rentit.dto.OwnerStatusDTO ownerStatus = restTemplate.getForObject(url,
 							com.p20.rentit.dto.OwnerStatusDTO.class);
+					if (ownerStatus != null) {
+						approvalStatus = ownerStatus.getApprovalStatus();
+					}
+				} else if ("CUSTOMER".equals(roleName)) {
+					String url = customerServiceUrl + "/customer/profile/" + user.getUserId();
+					System.out.println("DEBUG: Calling Customer Service: " + url);
+					com.p20.rentit.dto.CustomerStatusDTO customerStatus = restTemplate.getForObject(url,
+							com.p20.rentit.dto.CustomerStatusDTO.class);
+					if (customerStatus != null) {
+						approvalStatus = customerStatus.getApprovalStatus();
+					}
+				}
 
-					if (ownerStatus == null || !"APPROVED".equalsIgnoreCase(ownerStatus.getApprovalStatus())) {
+				// If role is OWNER or CUSTOMER, validate status
+				if ("OWNER".equals(roleName) || "CUSTOMER".equals(roleName)) {
+					System.out.println("DEBUG: Role requires approval check. Status fetched: " + approvalStatus);
+
+					if (approvalStatus == null) {
 						return ResponseEntity
 								.status(HttpStatus.FORBIDDEN)
-								.body("Admin has not approved your account yet");
+								.body("Please wait for admin approval");
+					} else if ("REJECTED".equalsIgnoreCase(approvalStatus)) {
+						return ResponseEntity
+								.status(HttpStatus.FORBIDDEN)
+								.body("Your registration has been rejected by admin");
+					} else if (!"APPROVED".equalsIgnoreCase(approvalStatus)) {
+						// Fallback for any other non-approved status
+						return ResponseEntity
+								.status(HttpStatus.FORBIDDEN)
+								.body("Please wait for admin approval");
 					}
-				} catch (Exception e) {
-					// safe fail - if owner service is down or returns error, block login
-					return ResponseEntity
-							.status(HttpStatus.INTERNAL_SERVER_ERROR)
-							.body("Unable to verify owner status. Please try again later.");
 				}
+
+			} catch (Exception e) {
+				// safe fail - if service is down or returns error, block login
+				return ResponseEntity
+						.status(HttpStatus.SERVICE_UNAVAILABLE)
+						.body("Unable to verify approval status. Please try again later.");
 			}
 
 			String token = jwtUtil.generateToken(user);

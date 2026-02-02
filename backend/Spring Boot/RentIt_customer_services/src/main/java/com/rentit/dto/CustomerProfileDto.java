@@ -21,9 +21,20 @@ public class CustomerProfileDto {
     private Integer cityId;
     private String cityName;
 
-    public CustomerProfileDto() {}
+    private String approvalStatus;
+
+    public CustomerProfileDto() {
+    }
 
     // Getters and setters
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
     public int getUserId() {
         return userId;
     }

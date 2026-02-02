@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OwnerStatusDTO {
+public class CustomerStatusDTO {
     @JsonAlias("ApprovalStatus")
     private String approvalStatus;
 
