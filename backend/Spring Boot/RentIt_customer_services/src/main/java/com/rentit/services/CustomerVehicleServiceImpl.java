@@ -4,8 +4,10 @@ import com.rentit.dto.AddressDTO;
 import com.rentit.dto.OwnerDTO;
 import com.rentit.dto.VehicleDTO;
 import com.rentit.dto.VehicleImageDTO;
+import com.rentit.dto.VehicleTypeDTO;
 import com.rentit.entities.*;
 import com.rentit.repositories.VehicleRepository;
+import com.rentit.repositories.VehicleTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,10 +19,13 @@ import java.util.stream.Collectors;
 public class CustomerVehicleServiceImpl implements CustomerVehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
 
     // Constructor-based dependency injection
-    public CustomerVehicleServiceImpl(VehicleRepository vehicleRepository) {
+    public CustomerVehicleServiceImpl(VehicleRepository vehicleRepository,
+            VehicleTypeRepository vehicleTypeRepository) {
         this.vehicleRepository = vehicleRepository;
+        this.vehicleTypeRepository = vehicleTypeRepository;
     }
 
     @Override
@@ -41,6 +46,32 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
         Vehicle vehicle = vehicleRepository.findByVehicleIdAndStatusWithDetails(vehicleId, VehicleStatus.ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found or not active with ID: " + vehicleId));
         return convertToDTO(vehicle, true);
+    }
+
+    @Override
+    public List<VehicleTypeDTO> getAllVehicleTypes() {
+        System.out.println("DEBUG: Service fetching all vehicle types");
+        List<VehicleType> vehicleTypes = vehicleTypeRepository.findAll();
+        System.out.println("DEBUG: Repository returned " + (vehicleTypes != null ? vehicleTypes.size() : "null")
+                + " vehicle types");
+
+        return vehicleTypes.stream()
+                .map(this::convertToVehicleTypeDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VehicleDTO> getActiveVehiclesByType(int vehicleTypeId) {
+        System.out.println("DEBUG: Service filtering vehicles by vehicleTypeId: " + vehicleTypeId);
+        List<Vehicle> filteredVehicles = vehicleRepository
+                .findByVehicleTypeAndStatusWithDetails(vehicleTypeId, VehicleStatus.ACTIVE);
+        System.out.println("DEBUG: Repository returned " + (filteredVehicles != null ? filteredVehicles.size() : "null")
+                + " vehicles");
+
+        // Pass false to include only primary image (reduces payload size)
+        return filteredVehicles.stream()
+                .map(v -> convertToDTO(v, false))
+                .collect(Collectors.toList());
     }
 
     // ---------- HELPER METHODS ----------
@@ -212,5 +243,19 @@ public class CustomerVehicleServiceImpl implements CustomerVehicleService {
         }
 
         return fullName.toString();
+    }
+
+    /**
+     * Convert VehicleType entity to VehicleTypeDTO
+     */
+    private VehicleTypeDTO convertToVehicleTypeDTO(VehicleType vehicleType) {
+        if (vehicleType == null) {
+            return null;
+        }
+
+        VehicleTypeDTO dto = new VehicleTypeDTO();
+        dto.setVehicleTypeId(vehicleType.getVehicleTypeId());
+        dto.setVehicleTypeName(vehicleType.getVehicleTypeName());
+        return dto;
     }
 }

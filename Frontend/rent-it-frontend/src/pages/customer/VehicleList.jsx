@@ -4,20 +4,44 @@ import api from "../../api/axios";
 
 function VehicleList() {
     const [vehicles, setVehicles] = useState([]);
+    const [vehicleTypes, setVehicleTypes] = useState([]);
+    const [selectedVehicleTypeId, setSelectedVehicleTypeId] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filter, setFilter] = useState("ALL");
 
     useEffect(() => {
+        fetchVehicleTypes();
         fetchVehicles();
     }, []);
 
-    const fetchVehicles = async () => {
+    const fetchVehicleTypes = async () => {
+        try {
+            console.log("🚀 Frontend: Fetching vehicle types from /customer/vehicle-types");
+            const response = await api.get("/customer/vehicle-types");
+            console.log("✅ Frontend: Vehicle types received:", response.data);
+
+            if (Array.isArray(response.data)) {
+                setVehicleTypes(response.data);
+            } else {
+                console.error("❌ Frontend: Unexpected vehicle types format:", response.data);
+            }
+        } catch (err) {
+            console.error("❌ Frontend: Error fetching vehicle types:", err);
+            // Don't set error state here, we can still show vehicles even if types fail
+        }
+    };
+
+    const fetchVehicles = async (vehicleTypeId = null) => {
         try {
             setLoading(true);
             setError(null);
-            console.log("🚀 Frontend: Fetching vehicles from /customer/vehicles");
-            const response = await api.get("/customer/vehicles");
+
+            const url = vehicleTypeId
+                ? `/customer/vehicles?vehicleTypeId=${vehicleTypeId}`
+                : "/customer/vehicles";
+
+            console.log(`🚀 Frontend: Fetching vehicles from ${url}`);
+            const response = await api.get(url);
             console.log("✅ Frontend: API Response received:", response);
             console.log("✅ Frontend: Data payload:", response.data);
 
@@ -39,10 +63,13 @@ function VehicleList() {
         }
     };
 
-    const filteredVehicles = vehicles.filter((vehicle) => {
-        if (filter === "ALL") return true;
-        return vehicle.vehicleType === filter;
-    });
+    const handleVehicleTypeChange = (e) => {
+        const selectedId = e.target.value;
+        setSelectedVehicleTypeId(selectedId);
+
+        // If empty string (All Vehicle Types), pass null to fetch all vehicles
+        fetchVehicles(selectedId === "" ? null : selectedId);
+    };
 
     if (loading) {
         return (
@@ -61,7 +88,7 @@ function VehicleList() {
                 <div className="alert alert-danger" role="alert">
                     <h4 className="alert-heading">Error!</h4>
                     <p>{error}</p>
-                    <button className="btn btn-danger" onClick={fetchVehicles}>
+                    <button className="btn btn-danger" onClick={() => fetchVehicles()}>
                         Try Again
                     </button>
                 </div>
@@ -73,40 +100,35 @@ function VehicleList() {
         <div className="container-fluid">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Browse Vehicles</h1>
-                <div>
-                    <button
-                        className={`btn ${filter === "ALL" ? "btn-primary" : "btn-outline-primary"} me-2`}
-                        onClick={() => setFilter("ALL")}
+                <div style={{ minWidth: "250px" }}>
+                    <select
+                        className="form-select"
+                        value={selectedVehicleTypeId}
+                        onChange={handleVehicleTypeChange}
+                        aria-label="Select vehicle type"
                     >
-                        All
-                    </button>
-                    <button
-                        className={`btn ${filter === "Bike" ? "btn-primary" : "btn-outline-primary"} me-2`}
-                        onClick={() => setFilter("Bike")}
-                    >
-                        Bikes
-                    </button>
-                    <button
-                        className={`btn ${filter === "Car" ? "btn-primary" : "btn-outline-primary"}`}
-                        onClick={() => setFilter("Car")}
-                    >
-                        Cars
-                    </button>
+                        <option value="">All Vehicle Types</option>
+                        {vehicleTypes.map((type) => (
+                            <option key={type.vehicleTypeId} value={type.vehicleTypeId}>
+                                {type.vehicleTypeName}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
-            {filteredVehicles.length === 0 ? (
+            {vehicles.length === 0 ? (
                 <div className="alert alert-info">
                     <h5 className="alert-heading">No Vehicles Available</h5>
                     <p>
-                        {filter === "ALL"
+                        {selectedVehicleTypeId === ""
                             ? "There are no active vehicles at the moment. Please check back later."
-                            : `No ${filter.toLowerCase()}s are currently available.`}
+                            : `No vehicles are currently available for the selected type.`}
                     </p>
                 </div>
             ) : (
                 <div className="row">
-                    {filteredVehicles.map((vehicle) => (
+                    {vehicles.map((vehicle) => (
                         <div key={vehicle.vehicleId} className="col-md-6 col-lg-4 mb-4">
                             <div className="card h-100 shadow-sm">
                                 {/* Vehicle Image */}
