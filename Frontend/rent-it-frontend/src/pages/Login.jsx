@@ -63,7 +63,16 @@ function Login() {
           navigate("/unauthorized");
       }
     } catch (err) {
-      setError("Invalid email or password");
+      console.error("Login Error:", err);
+      if (err.response && err.response.data) {
+        // Handle both string responses and object responses (e.g., { message: "..." })
+        const errorMessage = typeof err.response.data === 'string'
+          ? err.response.data
+          : err.response.data.message || "Invalid email or password";
+        setError(errorMessage);
+      } else {
+        setError("Invalid email or password");
+      }
     }
   };
 
@@ -126,7 +135,7 @@ function Login() {
             </Link>
           </div>
           <div>
-            
+
           </div>
           {/* Submit */}
           <button type="submit" className="btn btn-dark w-100" disabled={!!emailError || !!passwordError || !email || !password}>

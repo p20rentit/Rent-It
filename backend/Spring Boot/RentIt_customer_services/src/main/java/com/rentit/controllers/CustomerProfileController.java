@@ -27,7 +27,8 @@ public class CustomerProfileController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getProfile(@PathVariable int userId) {
         Optional<User> opt = userRepository.findById(userId);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
 
         User u = opt.get();
         CustomerProfileDto dto = mapToDto(u);
@@ -38,7 +39,8 @@ public class CustomerProfileController {
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateProfile(@PathVariable int userId, @RequestBody UpdateCustomerProfileRequest req) {
         Optional<User> opt = userRepository.findById(userId);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
 
         User u = opt.get();
 
@@ -61,7 +63,6 @@ public class CustomerProfileController {
         return ResponseEntity.ok(mapToDto(u));
     }
 
-
     private CustomerProfileDto mapToDto(User u) {
         CustomerProfileDto dto = new CustomerProfileDto();
         dto.setUserId(u.getUserId());
@@ -81,6 +82,9 @@ public class CustomerProfileController {
                 dto.setCityId(u.getArea().getCity().getCityId());
                 dto.setCityName(u.getArea().getCity().getCityName());
             }
+        }
+        if (u.getApprovalStatus() != null) {
+            dto.setApprovalStatus(u.getApprovalStatus().name());
         }
         return dto;
     }
