@@ -76,6 +76,15 @@ function AdminLayout() {
                                     Approvals
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link
+                                    className={`nav-link text-white ${isActive("/admin/vehicle-types")}`}
+                                    to="/admin/vehicle-types"
+                                >
+                                    <i className="bi bi-tags me-2"></i>
+                                    Vehicle Types
+                                </Link>
+                            </li>
                         </ul>
 
                         <hr className="text-white" />
