@@ -26,115 +26,130 @@ import com.p20.rentit.repositories.SecurityQuestionRepository;
 import com.p20.rentit.security.JwtUtil;
 import com.p20.rentit.services.AuthService;
 
-
 //@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-	
+
 	@Autowired
-    private SecurityQuestionRepository securityQuestionRepository;
+	private SecurityQuestionRepository securityQuestionRepository;
 
 	@Autowired
 	private AuthService authService;
-	
+
+	@Autowired
+	private org.springframework.web.client.RestTemplate restTemplate;
+
+	@org.springframework.beans.factory.annotation.Value("${owner.service.url}")
+	private String ownerServiceUrl;
+
 	@Autowired
 	private JwtUtil jwtUtil;
 
-    AuthController(SecurityQuestionRepository securityQuestionRepository) {
-        this.securityQuestionRepository = securityQuestionRepository;
-    }
-	
-	// login they insert data 
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest request){
-		try {
-            User user = authService.login(request.getEmail(),request.getPassword());
-
-            String token = jwtUtil.generateToken(user);
-            
-            LoginResponse response = new LoginResponse(
-                    user.getUserId(),
-                    user.getEmail(),
-                    user.getRole().getRoleName(),
-                    token
-            );
-            
-            return ResponseEntity.ok(response);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
-        }
+	AuthController(SecurityQuestionRepository securityQuestionRepository) {
+		this.securityQuestionRepository = securityQuestionRepository;
 	}
-	
-	
+
+	// login they insert data
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+		try {
+			User user = authService.login(request.getEmail(), request.getPassword());
+
+			// Create Owner Validation Check
+			if (user.getRole().getRoleName().equals("OWNER")) {
+				try {
+					String url = ownerServiceUrl + "/owner/profile/" + user.getUserId();
+					com.p20.rentit.dto.OwnerStatusDTO ownerStatus = restTemplate.getForObject(url,
+							com.p20.rentit.dto.OwnerStatusDTO.class);
+
+					if (ownerStatus == null || !"APPROVED".equalsIgnoreCase(ownerStatus.getApprovalStatus())) {
+						return ResponseEntity
+								.status(HttpStatus.FORBIDDEN)
+								.body("Admin has not approved your account yet");
+					}
+				} catch (Exception e) {
+					// safe fail - if owner service is down or returns error, block login
+					return ResponseEntity
+							.status(HttpStatus.INTERNAL_SERVER_ERROR)
+							.body("Unable to verify owner status. Please try again later.");
+				}
+			}
+
+			String token = jwtUtil.generateToken(user);
+
+			LoginResponse response = new LoginResponse(
+					user.getUserId(),
+					user.getEmail(),
+					user.getRole().getRoleName(),
+					token);
+
+			return ResponseEntity.ok(response);
+
+		} catch (RuntimeException e) {
+			return ResponseEntity
+					.status(HttpStatus.UNAUTHORIZED)
+					.body(e.getMessage());
+		}
+	}
+
 	// register
 	@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+	public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
 
-        User savedUser = authService.register(registerRequest);
+		User savedUser = authService.register(registerRequest);
 
-        return ResponseEntity.ok(savedUser);
-    }
-	
-	
+		return ResponseEntity.ok(savedUser);
+	}
+
 	// forgot-password
 	@PostMapping("/forgot-password")
-	public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
-		
+	public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+
 		SecurityQuestion question = authService.getSecurityQuestion(forgotPasswordRequest.getEmail());
-		
+
 		SecurityQuestionResponse response = new SecurityQuestionResponse(
 				question.getQuestionId(),
-				question.getQuestion()
-				);
-		
+				question.getQuestion());
+
 		System.out.print(question.getQuestion());
 		return ResponseEntity.ok(List.of(response));
 	}
-	
+
 	@PostMapping("/verify-security-answer")
 	public ResponseEntity<?> verifySecurityAnswer(
-	        @RequestBody VerifyAnswerRequest request) {
-		
-	    if (request.getQuestionId() == null) {
-	        return ResponseEntity
-	                .badRequest()
-	                .body("Security question not selected");
-	    }
+			@RequestBody VerifyAnswerRequest request) {
 
-	    authService.verifySecurityAnswer(
-	            request.getEmail(),
-	            request.getQuestionId(),
-	            request.getAnswer()
-	    );
+		if (request.getQuestionId() == null) {
+			return ResponseEntity
+					.badRequest()
+					.body("Security question not selected");
+		}
 
-	    return ResponseEntity.ok(
-	    	    Map.of("status", "VERIFIED")
-	    	);
+		authService.verifySecurityAnswer(
+				request.getEmail(),
+				request.getQuestionId(),
+				request.getAnswer());
+
+		return ResponseEntity.ok(
+				Map.of("status", "VERIFIED"));
 
 	}
 
-
-	
 	@PostMapping("/reset-password")
 	public ResponseEntity<?> resetPassword(
-	        @RequestBody ResetPasswordRequest request) {
+			@RequestBody ResetPasswordRequest request) {
 
-	    authService.resetPassword(
-	            request.getEmail(),
-	            request.getNewPassword()
-	    );
+		authService.resetPassword(
+				request.getEmail(),
+				request.getNewPassword());
 
-	    return ResponseEntity.ok("PASSWORD_RESET_SUCCESS");
+		return ResponseEntity.ok("PASSWORD_RESET_SUCCESS");
 	}
-	
-	 @GetMapping("/security-questions")
-	    public ResponseEntity<List<SecurityQuestion>> getAllQuestions() {
-	        return ResponseEntity.ok(securityQuestionRepository.findAll());
-	    }
 
-	
+	@GetMapping("/security-questions")
+	public ResponseEntity<List<SecurityQuestion>> getAllQuestions() {
+		return ResponseEntity.ok(securityQuestionRepository.findAll());
+	}
+
 }

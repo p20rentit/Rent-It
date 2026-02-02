@@ -13,5 +13,9 @@ public class P20RentItApplication {
 		System.out.println("RentIt Authentication Services started on port 9090");
 	}
 
+	@org.springframework.context.annotation.Bean
+	public org.springframework.web.client.RestTemplate restTemplate() {
+		return new org.springframework.web.client.RestTemplate();
+	}
+
 }
-	

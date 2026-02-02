@@ -138,5 +138,14 @@ namespace RentIt_owner_services.Services
                 throw new System.Exception($"Error completing return: {ex.Message}");
             }
         }
+
+
+        public async Task<bool> HasActiveBookings(int vehicleId)
+        {
+            return await _context.Bookings
+                .AnyAsync(b => b.VehicleId == vehicleId && 
+                               b.BookingStatus != "COMPLETED" && 
+                               b.BookingStatus != "CANCELLED");
+        }
     }
 }

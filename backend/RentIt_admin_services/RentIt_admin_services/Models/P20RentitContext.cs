@@ -298,8 +298,9 @@ public partial class P20RentitContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("answer");
             entity.Property(e => e.ApprovalStatus)
-                .HasColumnType("enum('APPROVED','REJECTED')")
-                .HasColumnName("approval_status");
+                .HasColumnType("enum('APPROVED','REJECTED','PENDING')")
+                .HasColumnName("approval_status")
+                .HasConversion<string>();
             entity.Property(e => e.AreaId).HasColumnName("area_id");
             entity.Property(e => e.DrivingLicenceNo).HasColumnName("driving_licence_no");
             entity.Property(e => e.Email).HasColumnName("email");
@@ -307,8 +308,9 @@ public partial class P20RentitContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("fname");
             entity.Property(e => e.IsActive)
-                .HasColumnType("bit(1)")
-                .HasColumnName("is_active");
+                .HasColumnType("enum('ACTIVE','DEACTIVE')")
+                .HasColumnName("is_active")
+                .HasConversion<string>();
             entity.Property(e => e.Lname)
                 .HasMaxLength(255)
                 .HasColumnName("lname");

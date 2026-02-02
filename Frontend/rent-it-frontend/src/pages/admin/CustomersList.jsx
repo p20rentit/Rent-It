@@ -104,10 +104,10 @@ function CustomersList() {
                                                 </small>
                                             </td>
                                             <td>
-                                                {customer.isActive === 1 ? (
-                                                    <span className="badge bg-success">Active</span>
+                                                {customer.isActive === 'ACTIVE' ? (
+                                                    <span className="badge bg-success">Online</span>
                                                 ) : (
-                                                    <span className="badge bg-danger">Inactive</span>
+                                                    <span className="badge bg-danger">Offline</span>
                                                 )}
                                             </td>
                                             <td>

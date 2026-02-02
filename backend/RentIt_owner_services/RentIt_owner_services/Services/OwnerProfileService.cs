@@ -42,7 +42,8 @@ namespace RentIt_owner_services.Services
                 AreaName = user.Area?.AreaName,
                 CityId = user.Area?.CityId ?? 0,
                 CityName = user.Area?.City?.CityName,
-                Pincode = user.Area?.Pincode
+                Pincode = user.Area?.Pincode,
+                ApprovalStatus = user.ApprovalStatus
             };
         }
 

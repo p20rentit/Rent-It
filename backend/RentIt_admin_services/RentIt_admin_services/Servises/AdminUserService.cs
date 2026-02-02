@@ -33,8 +33,8 @@ namespace RentIt_admin_services.Servises
                 Address = u.Address,
                 AreaName = u.Area?.AreaName,
                 CityName = u.Area?.City?.CityName,
-                ApprovalStatus = u.ApprovalStatus,
-                IsActive = u.IsActive
+                ApprovalStatus = u.ApprovalStatus?.ToString(),
+                IsActive = u.IsActive?.ToString()
             }).ToList();
         }
 
@@ -44,7 +44,7 @@ namespace RentIt_admin_services.Servises
         {
             // Role ID 1 typically represents Customer
             // Modify this if your database uses different role IDs
-            return await GetUsersByRole(1);
+            return await GetUsersByRole(2);
         }
 
         // Get all owners (assuming role_id = 2 for owners)
@@ -53,7 +53,7 @@ namespace RentIt_admin_services.Servises
         {
             // Role ID 2 typically represents Owner
             // Modify this if your database uses different role IDs
-            return await GetUsersByRole(2);
+            return await GetUsersByRole(3);
         }
 
         // Approve or reject user
@@ -65,11 +65,10 @@ namespace RentIt_admin_services.Servises
                 throw new Exception($"User with ID {userId} not found");
 
             // Validate approval status
-            var validStatuses = new[] { "APPROVED", "REJECTED", "PENDING" };
-            if (!validStatuses.Contains(approvalStatus.ToUpper()))
-                throw new Exception($"Invalid approval status. Valid values are: {string.Join(", ", validStatuses)}");
+            if (!Enum.TryParse<RentIt_admin_services.Models.Enums.UserApprovalStatus>(approvalStatus, true, out var statusEnum))
+                throw new Exception("Invalid approval status.");
 
-            user.ApprovalStatus = approvalStatus.ToUpper();
+            user.ApprovalStatus = statusEnum;
             await _repository.SaveChanges();
         }
     }

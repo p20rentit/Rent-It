@@ -123,15 +123,23 @@ namespace RentIt_owner_services.Controllers
 
         // DELETE: api/owner/vehicles/{vehicleId}
         // Delete vehicle and all its images (cascade delete)
+
         [HttpDelete("{vehicleId}")]
         public async Task<IActionResult> DeleteVehicle(int vehicleId)
         {
-            await _ownerVehicleService.DeleteVehicle(vehicleId);
-
-            return Ok(new
+            try
             {
-                message = "Vehicle deleted successfully"
-            });
+                await _ownerVehicleService.DeleteVehicle(vehicleId);
+
+                return Ok(new
+                {
+                    message = "Vehicle deleted successfully"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         // DELETE: api/owner/vehicles/images/{imageId}

@@ -46,7 +46,8 @@ function VehicleList() {
                 loadVehicles(); // Reload list after delete
             } catch (error) {
                 console.error("Error deleting vehicle:", error);
-                alert("Failed to delete vehicle");
+                const errorMessage = error.response?.data?.message || "Failed to delete vehicle";
+                alert(errorMessage);
             }
         }
     };

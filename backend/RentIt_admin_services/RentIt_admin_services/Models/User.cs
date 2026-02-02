@@ -35,9 +35,9 @@ public partial class User
 
     public string? Answer { get; set; }
 
-    public ulong? IsActive { get; set; }
+    public RentIt_admin_services.Models.Enums.UserAccountStatus? IsActive { get; set; }
 
-    public string? ApprovalStatus { get; set; }
+    public RentIt_admin_services.Models.Enums.UserApprovalStatus? ApprovalStatus { get; set; }
 
     public virtual Area Area { get; set; } = null!;
 

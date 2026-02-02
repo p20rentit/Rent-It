@@ -16,6 +16,6 @@ namespace RentIt_admin_services.DTOs
         public string? AreaName { get; set; }
         public string? CityName { get; set; }
         public string? ApprovalStatus { get; set; }
-        public ulong? IsActive { get; set; }
+        public string? IsActive { get; set; }
     }
 }

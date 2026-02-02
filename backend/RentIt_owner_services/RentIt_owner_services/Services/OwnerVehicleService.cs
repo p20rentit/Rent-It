@@ -6,11 +6,14 @@ namespace RentIt_owner_services.Services
 {
     public class OwnerVehicleService : IOwnerVehicleService
     {
-        private readonly IOwnerVehicleRepository _repository;
 
-        public OwnerVehicleService(IOwnerVehicleRepository repository)
+        private readonly IOwnerVehicleRepository _repository;
+        private readonly IBookingService _bookingService;
+
+        public OwnerVehicleService(IOwnerVehicleRepository repository, IBookingService bookingService)
         {
             _repository = repository;
+            _bookingService = bookingService;
         }
 
         public async Task<List<OwnerVehicleDto>> FetchOwnerVehicles(int ownerId)
@@ -231,6 +234,9 @@ namespace RentIt_owner_services.Services
         // Delete vehicle
         public async Task DeleteVehicle(int vehicleId)
         {
+            if (await _bookingService.HasActiveBookings(vehicleId))
+                throw new InvalidOperationException("Vehicle cannot be deleted because it has active bookings");
+
             var vehicle = await _repository.GetVehicleById(vehicleId);
 
             if (vehicle == null)

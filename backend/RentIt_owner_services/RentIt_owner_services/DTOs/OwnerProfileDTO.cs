@@ -19,6 +19,7 @@ namespace RentIt_owner_services.DTOs
         public int CityId { get; set; }
         public string CityName { get; set; }
         public string Pincode { get; set; }
+        public string ApprovalStatus { get; set; }
     }
 
     public class UpdateProfileDTO
