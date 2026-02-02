@@ -76,6 +76,10 @@ namespace RentIt_admin_services
             builder.Services.AddScoped<IAdminAnalyticsRepository, AdminAnalyticsRepository>();
             builder.Services.AddScoped<IAdminAnalyticsService, AdminAnalyticsService>();
 
+            // Vehicle Type repository and service
+            builder.Services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
+            builder.Services.AddScoped<IVehicleTypeService, VehicleTypeService>();
+
             // NOTE: Authentication/Authorization removed for standalone Admin service
             // Do not configure JWT/roles in this standalone mode per requirements.
 
