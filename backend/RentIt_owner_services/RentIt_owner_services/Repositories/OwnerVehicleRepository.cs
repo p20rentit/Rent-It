@@ -84,8 +84,19 @@ namespace RentIt_owner_services.Repositories
         public async Task DeleteVehicle(Vehicle vehicle)
         {
             // Instead of physical delete, marks as MAINTENANCE (soft delete) due to Enum constraint
-            vehicle.Status = "MAINTENANCE";
-            // _context.Vehicles.Remove(vehicle); // Removed physical delete
+            //vehicle.Status = "MAINTENANCE";
+
+            // Get all related vehicle images
+            var images = await _context.VehicleImages
+                                .Where(v => v.VehicleId == vehicle.VehicleId)
+                                .ToListAsync();
+
+            // Remove images first
+            _context.VehicleImages.RemoveRange(images);
+
+            _context.Vehicles.Remove(vehicle); // Removed physical delete
+
+            await _context.SaveChangesAsync();
         }
 
         // Get image by ID

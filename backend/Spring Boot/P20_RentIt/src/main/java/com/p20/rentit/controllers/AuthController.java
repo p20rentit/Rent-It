@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+//import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,10 +41,10 @@ public class AuthController {
 	@Autowired
 	private org.springframework.web.client.RestTemplate restTemplate;
 
-	@org.springframework.beans.factory.annotation.Value("${owner.service.url}")
+	@Value("${owner.service.url}")
 	private String ownerServiceUrl;
 
-	@org.springframework.beans.factory.annotation.Value("${customer.service.url}")
+	@Value("${customer.service.url}")
 	private String customerServiceUrl;
 
 	@Autowired

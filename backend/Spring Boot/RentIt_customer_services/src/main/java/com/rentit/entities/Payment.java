@@ -3,9 +3,6 @@ package com.rentit.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.rentit.entities.PaymentStatus;
-import com.rentit.entities.PaymentMethod;
-import com.rentit.entities.PaymentType;
 
 @Entity
 @Table(name = "payment")
