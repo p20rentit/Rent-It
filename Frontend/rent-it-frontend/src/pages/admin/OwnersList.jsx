@@ -104,10 +104,10 @@ function OwnersList() {
                                                 </small>
                                             </td>
                                             <td>
-                                                {owner.isActive === 1 ? (
-                                                    <span className="badge bg-success">Active</span>
+                                                {owner.isActive === 'ACTIVE' ? (
+                                                    <span className="badge bg-success">Online</span>
                                                 ) : (
-                                                    <span className="badge bg-danger">Inactive</span>
+                                                    <span className="badge bg-danger">Offline</span>
                                                 )}
                                             </td>
                                             <td>

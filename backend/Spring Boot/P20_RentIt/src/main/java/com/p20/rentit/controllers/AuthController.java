@@ -3,6 +3,9 @@ package com.p20.rentit.controllers;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,7 @@ import com.p20.rentit.dto.SecurityQuestionResponse;
 import com.p20.rentit.dto.VerifyAnswerRequest;
 import com.p20.rentit.entities.SecurityQuestion;
 import com.p20.rentit.entities.User;
+import com.p20.rentit.entities.UserStatus;
 import com.p20.rentit.repositories.SecurityQuestionRepository;
 import com.p20.rentit.security.JwtUtil;
 import com.p20.rentit.services.AuthService;
@@ -114,12 +118,16 @@ public class AuthController {
 
 			} catch (Exception e) {
 				// safe fail - if service is down or returns error, block login
+				System.out.println("ERROR: Approval Check Failed: " + e.getMessage());
+				e.printStackTrace();
 				return ResponseEntity
 						.status(HttpStatus.SERVICE_UNAVAILABLE)
 						.body("Unable to verify approval status. Please try again later.");
 			}
 
 			String token = jwtUtil.generateToken(user);
+
+			authService.updateUserStatus(user.getEmail(), UserStatus.ACTIVE);
 
 			LoginResponse response = new LoginResponse(
 					user.getUserId(),
@@ -193,6 +201,31 @@ public class AuthController {
 	@GetMapping("/security-questions")
 	public ResponseEntity<List<SecurityQuestion>> getAllQuestions() {
 		return ResponseEntity.ok(securityQuestionRepository.findAll());
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(HttpServletRequest request) {
+		try {
+			System.out.println("DEBUG: Logout endpoint hit");
+			String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+			System.out.println("DEBUG: Auth Header: " + (authHeader != null ? "Present" : "Null"));
+
+			if (authHeader != null && authHeader.startsWith("Bearer ")) {
+				String token = authHeader.substring(7);
+				String email = jwtUtil.extractUsername(token);
+				System.out.println("DEBUG: Extracted email: " + email);
+				authService.updateUserStatus(email, UserStatus.DEACTIVE);
+			} else {
+				System.out.println("DEBUG: No valid Bearer token found");
+			}
+			return ResponseEntity.ok("Logged out successfully");
+		} catch (Exception e) {
+			System.out.println("ERROR: Logout failed: " + e.getMessage());
+			e.printStackTrace();
+			// Return error so we can debug
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Logout failed: " + e.getMessage());
+		}
 	}
 
 }

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { logout } from "../redux/authSlice";
+import api from "../api/axios";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -10,9 +11,15 @@ function Navbar() {
   // ✅ Get auth state from Redux
   const { isAuthenticated, role } = useSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());      // clears Redux + localStorage
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      dispatch(logout()); // clears Redux + localStorage
+      navigate("/login");
+    }
   };
 
   return (
