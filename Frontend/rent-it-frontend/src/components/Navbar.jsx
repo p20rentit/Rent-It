@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
 
 import { logout } from "../redux/authSlice";
 import api from "../api/axios";
@@ -7,9 +8,14 @@ import api from "../api/axios";
 function Navbar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false);
 
   // ✅ Get auth state from Redux
   const { isAuthenticated, role } = useSelector((state) => state.auth);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
   const handleLogout = async () => {
     try {
@@ -19,6 +25,7 @@ function Navbar() {
     } finally {
       dispatch(logout()); // clears Redux + localStorage
       navigate("/login");
+      setIsOpen(false); // Close menu on logout
     }
   };
 
@@ -30,41 +37,40 @@ function Navbar() {
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
+          onClick={toggleMenu}
           aria-controls="navbarNav"
-          aria-expanded="false"
+          aria-expanded={isOpen}
           aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
+        <div className={`collapse navbar-collapse ${isOpen ? "show" : ""}`} id="navbarNav">
           <ul className="navbar-nav ms-auto">
 
             {/* Home */}
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link className="nav-link" to="/" onClick={() => setIsOpen(false)}>Home</Link>
             </li>
 
             {/* ADMIN */}
             {isAuthenticated && role === "ADMIN" && (
               <li className="nav-item">
-                <Link className="nav-link" to="/admin">Admin</Link>
+                <Link className="nav-link" to="/admin" onClick={() => setIsOpen(false)}>Admin</Link>
               </li>
             )}
 
             {/* CUSTOMER */}
             {isAuthenticated && role === "CUSTOMER" && (
               <li className="nav-item">
-                <Link className="nav-link" to="/customer">Customer</Link>
+                <Link className="nav-link" to="/customer" onClick={() => setIsOpen(false)}>Customer</Link>
               </li>
             )}
 
             {/* OWNER */}
             {isAuthenticated && role === "OWNER" && (
               <li className="nav-item">
-                <Link className="nav-link" to="/owner">Owner</Link>
+                <Link className="nav-link" to="/owner" onClick={() => setIsOpen(false)}>Owner</Link>
               </li>
             )}
 
@@ -72,10 +78,10 @@ function Navbar() {
             {!isAuthenticated && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login">Login</Link>
+                  <Link className="nav-link" to="/login" onClick={() => setIsOpen(false)}>Login</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/register">Register</Link>
+                  <Link className="nav-link" to="/register" onClick={() => setIsOpen(false)}>Register</Link>
                 </li>
               </>
             )}

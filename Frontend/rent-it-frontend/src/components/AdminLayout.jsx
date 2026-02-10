@@ -67,7 +67,7 @@ function AdminLayout() {
                                     All Vehicles
                                 </Link>
                             </li>
-                            <li className="nav-item">
+                            {/* {<li className="nav-item">
                                 <Link
                                     className={`nav-link text-white ${isActive("/admin/vehicles/pending")}`}
                                     to="/admin/vehicles/pending"
@@ -75,7 +75,7 @@ function AdminLayout() {
                                     <i className="bi bi-clock-history me-2"></i>
                                     Approvals
                                 </Link>
-                            </li>
+                            </li>} */}
                             <li className="nav-item">
                                 <Link
                                     className={`nav-link text-white ${isActive("/admin/vehicle-types")}`}

@@ -179,13 +179,13 @@ public class BookingService {
             throw new RuntimeException("Bookings can only be cancelled at least 2 days before the start date.");
         }
 
-        booking.setBookingStatus(BookingStatus.CANCELLED);
+        booking.setBookingStatus(BookingStatus.CANCEL_REQUESTED);
         Booking savedBooking = bookingRepository.save(booking);
 
-        // Record the cancellation
+        // Record the cancellation request
         BookingRecord record = new BookingRecord();
         record.setBooking(savedBooking);
-        record.setVehicleStatus(VehicleBookingStatus.CANCELLED);
+        record.setVehicleStatus(VehicleBookingStatus.CANCEL_REQUESTED);
         bookingRecordRepository.save(record);
 
         return savedBooking;

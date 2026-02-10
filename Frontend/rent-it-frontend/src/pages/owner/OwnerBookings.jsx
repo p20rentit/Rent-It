@@ -66,6 +66,7 @@ function OwnerBookings() {
                         <option value="CONFIRMED">Confirmed</option>
                         <option value="ONGOING">Ongoing (Rented)</option>
                         <option value="COMPLETED">Completed</option>
+                        <option value="CANCEL_REQUESTED">Cancellation Requests</option>
                         <option value="CANCELLED">Cancelled</option>
                     </select>
                 </div>
@@ -139,7 +140,7 @@ function OwnerBookings() {
                                         <div className="mb-2">
                                             <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' || booking.bookingStatus === 'COMPLETED' ? 'bg-success' :
                                                 booking.bookingStatus === 'PENDING' || booking.bookingStatus === 'ONGOING' ? 'bg-warning text-dark' :
-                                                    booking.bookingStatus === 'RETURN_REQUESTED' ? 'bg-info text-dark' :
+                                                    booking.bookingStatus === 'RETURN_REQUESTED' || booking.bookingStatus === 'CANCEL_REQUESTED' ? 'bg-info text-dark' :
                                                         'bg-danger'
                                                 } px-3`}>
                                                 {booking.bookingStatus.replace('_', ' ')}
@@ -148,6 +149,35 @@ function OwnerBookings() {
                                         <div className="small text-muted" style={{ fontSize: '0.7rem' }}>
                                             Payment: {booking.paymentStatus}
                                         </div>
+
+                                        {booking.bookingStatus === 'CANCEL_REQUESTED' && (
+                                            <div className="mt-2">
+                                                <button
+                                                    className="btn btn-warning btn-sm py-0 text-dark"
+                                                    style={{ fontSize: '0.75rem' }}
+                                                    onClick={async () => {
+                                                        const refundAmt = (booking.paidAmount || 0); // Logic: Refund whatever matches PaidAmount
+                                                        if (window.confirm(`Confirm Refund of ₹${refundAmt} for Booking #${booking.bookingId}? This will cancel the booking.`)) {
+                                                            try {
+                                                                const res = await OwnerBookingService.confirmRefund(booking.bookingId, userId);
+                                                                console.log("Refund Confirmed:", res);
+                                                                alert(`Refund Processed Successfully!\nState: CANCELLED\nRefunded: ₹${refundAmt}`);
+
+                                                                // Update List
+                                                                const updateBooking = (list) => list.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'CANCELLED', paymentStatus: 'REFUNDED' } : b);
+                                                                setFilteredBookings(prev => updateBooking(prev));
+                                                                setBookings(prev => updateBooking(prev));
+                                                            } catch (err) {
+                                                                console.error("Confirm refund failed", err);
+                                                                alert("Failed to confirm refund: " + (err.response?.data || err.message));
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    Confirm Refund
+                                                </button>
+                                            </div>
+                                        )}
 
                                         {booking.bookingStatus === 'RETURN_REQUESTED' && (
                                             <div className="mt-2">
