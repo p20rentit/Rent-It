@@ -22,24 +22,19 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // Disable CSRF (required for REST + React)
-            .csrf(csrf -> csrf.disable())
+                // Disable CSRF (required for REST + React)
+                .csrf(csrf -> csrf.disable())
 
-            // Stateless session (JWT based)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                // Stateless session (JWT based)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/location/**").permitAll()
-                .anyRequest().authenticated()
-            )
+                // Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/location/**").permitAll()
+                        .anyRequest().authenticated())
 
-
-
-            // Add JWT filter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                // Add JWT filter
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -49,7 +44,7 @@ public class SecurityConfig {
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

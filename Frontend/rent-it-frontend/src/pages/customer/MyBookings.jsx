@@ -152,12 +152,15 @@ function MyBookings() {
                                             <span className="small">Security Deposit:</span>
                                             <span className="fw-bold small">₹{booking.depositAmount}</span>
                                         </div>
-                                        {booking.paidAmount > booking.totalAmount && booking.bookingStatus !== 'COMPLETED' && (
-                                            <div className="d-flex justify-content-between text-success mt-1 border-top pt-1">
-                                                <span className="small fw-bold">Refundable:</span>
-                                                <span className="fw-bold small">₹{booking.paidAmount - booking.totalAmount} (on return)</span>
-                                            </div>
-                                        )}
+                                        {booking.paidAmount > booking.totalAmount &&
+                                            booking.bookingStatus !== 'COMPLETED' &&
+                                            booking.bookingStatus !== 'CANCELLED' &&
+                                            booking.bookingStatus !== 'CANCEL_REQUESTED' && (
+                                                <div className="d-flex justify-content-between text-success mt-1 border-top pt-1">
+                                                    <span className="small fw-bold">Refundable:</span>
+                                                    <span className="fw-bold small">₹{booking.paidAmount - booking.totalAmount} (on return)</span>
+                                                </div>
+                                            )}
                                         {booking.bookingStatus === 'COMPLETED' && (
                                             <div className="mt-1 border-top pt-1">
                                                 {booking.paidAmount > booking.totalAmount ? (
@@ -171,12 +174,29 @@ function MyBookings() {
                                                     </div>
                                                 ) : null}
                                             </div>
+
+                                        )}
+                                        {booking.bookingStatus === 'CANCEL_REQUESTED' && (
+                                            <div className="mt-1 border-top pt-1 text-warning small" style={{ fontSize: '0.75rem' }}>
+                                                <i className="bi bi-hourglass-split me-1"></i>
+                                                Waiting for owner refund: <strong>₹{booking.paidAmount || 0}</strong>
+                                            </div>
+                                        )}
+                                        {booking.bookingStatus === 'CANCELLED' && booking.paymentStatus === 'REFUNDED' && (
+                                            <div className="mt-1 border-top pt-1">
+                                                <div className="d-flex justify-content-between text-success">
+                                                    <span className="small fw-bold">Refunded:</span>
+                                                    <span className="fw-bold small">₹{booking.paidAmount || 0}</span>
+                                                </div>
+                                            </div>
                                         )}
                                     </td>
                                     <td className="text-center">
                                         <div className="mb-2">
-                                            <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' ? 'bg-success' : booking.bookingStatus === 'CANCELLED' ? 'bg-danger' : 'bg-warning'} px-3`}>
-                                                {booking.bookingStatus}
+                                            <span className={`badge rounded-pill ${booking.bookingStatus === 'CONFIRMED' ? 'bg-success' :
+                                                booking.bookingStatus === 'CANCEL_REQUESTED' ? 'bg-warning text-dark' :
+                                                    booking.bookingStatus === 'CANCELLED' ? 'bg-danger' : 'bg-warning'} px-3`}>
+                                                {booking.bookingStatus === 'CANCEL_REQUESTED' ? 'Cancellation Requested' : booking.bookingStatus}
                                             </span>
                                         </div>
                                         <div>
@@ -299,7 +319,7 @@ function MyBookings() {
                                             // Fix: cancel button should hide if booked/ongoing/etc? 
                                             // Prompt doesn't say remove cancel, but usually you can't cancel if trip started.
                                             // Adding check: if ONGOING, don't show cancel.
-                                            if (booking.bookingStatus === 'ONGOING') return null;
+                                            if (booking.bookingStatus === 'ONGOING' || booking.bookingStatus === 'CANCEL_REQUESTED') return null;
 
                                             const diffTime = startDate - today;
                                             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -318,8 +338,8 @@ function MyBookings() {
                                                                 try {
                                                                     console.log(`Attempting to cancel booking ${booking.bookingId} for user ${userId}`);
                                                                     await BookingService.cancelBooking(booking.bookingId, userId);
-                                                                    setBookings(prev => prev.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'CANCELLED' } : b));
-                                                                    alert("Booking cancelled successfully.");
+                                                                    setBookings(prev => prev.map(b => b.bookingId === booking.bookingId ? { ...b, bookingStatus: 'CANCEL_REQUESTED' } : b));
+                                                                    alert("Cancellation requested! Waiting for owner approval.");
                                                                 } catch (err) {
                                                                     console.error("Cancellation failed:", err);
                                                                     const reason = err.response?.data?.message || err.response?.data || "Failed to cancel booking.";
@@ -339,7 +359,8 @@ function MyBookings() {
                         </tbody>
                     </table>
                 </div>
-            )}
+            )
+            }
 
             <style>{`
                 .hover-link:hover {
@@ -349,7 +370,7 @@ function MyBookings() {
                     font-size: 0.75rem;
                 }
             `}</style>
-        </div>
+        </div >
     );
 }
 

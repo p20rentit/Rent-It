@@ -34,5 +34,19 @@ namespace RentIt_owner_services.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{bookingId}/refund-confirm")]
+        public async Task<IActionResult> ConfirmRefund(int bookingId, [FromQuery] int ownerId)
+        {
+            try
+            {
+                var booking = await _bookingService.ConfirmRefund(bookingId, ownerId);
+                return Ok(booking);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

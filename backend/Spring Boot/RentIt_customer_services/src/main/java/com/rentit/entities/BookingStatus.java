@@ -7,5 +7,6 @@ public enum BookingStatus {
     CANCELLED,
     ONGOING,
     RETURN_REQUESTED,
+    CANCEL_REQUESTED,
     COMPLETED
 }

@@ -20,13 +20,13 @@ public class AuthService {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private RoleRepository roleRepository;
-    
+
     @Autowired
     private AreaRepository areaRepository;
-    
+
     @Autowired
     private SecurityQuestionRepository securityQuestionRepository;
 
@@ -52,33 +52,33 @@ public class AuthService {
 
         return user;
     }
-    
+
     // ---------- REGISTER ----------
     public User register(RegisterRequest request) {
 
-        //  Check email already exists
+        // Check email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
-        
+
         // Fetch role
         Role role = roleRepository.findById(request.getRoleId())
-        		.orElseThrow(() -> new RuntimeException("Role Not Found"));
-        
+                .orElseThrow(() -> new RuntimeException("Role Not Found"));
+
         Area area = areaRepository.findById(request.getAreaId())
-        		.orElseThrow(() -> new RuntimeException("Area Not Found"));
-        
+                .orElseThrow(() -> new RuntimeException("Area Not Found"));
+
         SecurityQuestion securityQuestion = securityQuestionRepository.findById(request.getQuestionId())
-        		.orElseThrow(() -> new RuntimeException("Question Not Found"));
-        
-        //  Create User object
+                .orElseThrow(() -> new RuntimeException("Question Not Found"));
+
+        // Create User object
         User user = new User();
         user.setFname(request.getFname());
         user.setMname(request.getMname());
         user.setLname(request.getLname());
         user.setEmail(request.getEmail());
         user.setRole(role);
-        
+
         user.setPhone(request.getPhone());
         user.setDrivingLicenceNo(request.getDrivingLicenceNo());
         user.setAdharNo(request.getAdharNo());
@@ -87,31 +87,26 @@ public class AuthService {
         user.setArea(area);
         user.setSecurityQuestion(securityQuestion);
         user.setAnswer(
-        	    passwordEncoder.encode(
-        	        request.getAnswer().trim().toLowerCase()
-        	    )
-        	);
+                passwordEncoder.encode(
+                        request.getAnswer().trim().toLowerCase()));
 
-        
         // Encode password ONCE
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-       
 
         // Save user
         return userRepository.save(user);
     }
-    
+
     // forgot - passord
     public SecurityQuestion getSecurityQuestion(String email) {
-    	User user = userRepository.findByEmail(email)
-    			.orElseThrow(() -> new RuntimeException("User Not Found"));
-    	
-    	SecurityQuestion question = user.getSecurityQuestion();
-    	
-    	return new SecurityQuestion(question.getQuestionId(),question.getQuestion());	
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        SecurityQuestion question = user.getSecurityQuestion();
+
+        return new SecurityQuestion(question.getQuestionId(), question.getQuestion());
     }
-    
+
     // ---------- VERIFY SECURITY ANSWER ----------
     public void verifySecurityAnswer(String email, Integer questionId, String answer) {
 
@@ -123,13 +118,12 @@ public class AuthService {
             throw new RuntimeException("Invalid security question");
         }
 
-
         String inputAnswer = answer.trim().toLowerCase();
 
         if (!passwordEncoder.matches(inputAnswer, user.getAnswer())) {
-        	System.out.println(passwordEncoder.encode(user.getAnswer()));
-        	System.out.println(passwordEncoder.encode(inputAnswer));
-        	
+            System.out.println(passwordEncoder.encode(user.getAnswer()));
+            System.out.println(passwordEncoder.encode(inputAnswer));
+
             throw new RuntimeException("Incorrect answer");
         }
 
@@ -143,6 +137,23 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    // ---------- STATUS UPDATE ----------
+    @org.springframework.transaction.annotation.Transactional
+    public void updateUserStatus(String email, com.p20.rentit.entities.UserStatus status) {
+        System.out.println("DEBUG: updateUserStatus called for email: " + email + " with status: " + status);
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User Not Found"));
+            user.setIsActive(status);
+            userRepository.saveAndFlush(user); // Force immediate write
+            System.out.println("DEBUG: User status updated and saved (flushed) for " + email);
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to update user status in DB: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to controller
+        }
     }
 
 }

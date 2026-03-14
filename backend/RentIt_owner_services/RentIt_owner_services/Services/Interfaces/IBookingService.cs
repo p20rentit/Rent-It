@@ -10,5 +10,6 @@ namespace RentIt_owner_services.Services.Interfaces
         Task<IEnumerable<OwnerBookingDTO>> GetBookingsByOwnerId(int ownerId);
         Task<Booking> CompleteReturn(int bookingId, int ownerId);
         Task<bool> HasActiveBookings(int vehicleId);
+        Task<Booking> ConfirmRefund(int bookingId, int ownerId);
     }
 }

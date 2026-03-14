@@ -4,5 +4,6 @@ public enum VehicleBookingStatus {
     BOOKED,
     PICKED,
     RETURNED,
-    CANCELLED
+    CANCELLED,
+    CANCEL_REQUESTED
 }

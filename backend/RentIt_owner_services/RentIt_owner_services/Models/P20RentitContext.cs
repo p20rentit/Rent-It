@@ -310,7 +310,7 @@ public partial class P20RentitContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("fname");
             entity.Property(e => e.IsActive)
-                .HasColumnType("bit(1)")
+                .HasColumnType("varchar(50)")
                 .HasColumnName("is_active");
             entity.Property(e => e.Lname)
                 .HasMaxLength(255)
